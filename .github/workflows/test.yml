@@ -1,0 +1,25 @@
+name: test
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test_go:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+
+      - name: Test
+        run: |
+          go mod download
+          go install github.com/matryer/moq@latest
+          go generate ./...
+          go test --race --coverprofile cover.out -v ./...
