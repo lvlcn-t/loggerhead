@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"strings"
 )
 
 type Level = slog.Level
@@ -70,4 +71,21 @@ func (l *logger) Fatalf(msg string, args ...any) {
 func (l *logger) FatalContext(ctx context.Context, msg string, args ...any) {
 	l.core.Log(ctx, LevelFatal, msg, args...)
 	os.Exit(1)
+}
+
+// getLevel takes a level string and maps it to the corresponding Level
+// Returns the level if no mapped level is found it returns info level
+func getLevel(level string) Level {
+	switch strings.ToUpper(level) {
+	case "DEBUG":
+		return slog.LevelDebug
+	case "INFO":
+		return slog.LevelInfo
+	case "WARN", "WARNING":
+		return slog.LevelWarn
+	case "ERROR":
+		return slog.LevelError
+	default:
+		return slog.LevelInfo
+	}
 }
