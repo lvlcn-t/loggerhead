@@ -3,6 +3,7 @@ package logger
 import (
 	"context"
 	"log/slog"
+	"net/http"
 	"os"
 )
 
@@ -45,16 +46,14 @@ func NewNamedLogger(name string, h ...slog.Handler) Logger {
 	}
 }
 
-// // NewContextWithLogger creates a new context based on the provided parent context.
-// // It embeds a logger into this new context, which is a child of the logger from the parent context.
-// // The child logger inherits settings from the parent and is grouped under the provided childName.
-// // It also returns a cancel function to cancel the new context.
-// func NewContextWithLogger(parent context.Context, childName string) (context.Context, context.CancelFunc) {
-// 	ctx, cancel := context.WithCancel(parent)
-// 	log := FromContext(parent)
-// 	WithGroup(log.core)
-// 	return IntoContext(ctx), cancel
-// }
+// NewContextWithLogger creates a new context based on the provided parent context.
+// It embeds a logger into this new context, which is a child of the logger from the parent context.
+// The child logger inherits settings from the parent.
+// Returns the child context and its cancel function to cancel the new context.
+func NewContextWithLogger(parent context.Context) (context.Context, context.CancelFunc) {
+	ctx, cancel := context.WithCancel(parent)
+	return IntoContext(ctx, FromContext(parent)), cancel
+}
 
 // IntoContext embeds the provided slog.Logger into the given context and returns the modified context.
 // This function is used for passing loggers through context, allowing for context-aware logging.
@@ -74,9 +73,23 @@ func FromContext(ctx context.Context) Logger {
 	return NewLogger()
 }
 
+// Middleware takes the logger from the context and adds it to the request context
+func Middleware(ctx context.Context) func(http.Handler) http.Handler {
+	log := FromContext(ctx)
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			reqCtx := IntoContext(r.Context(), log)
+			next.ServeHTTP(w, r.WithContext(reqCtx))
+		})
+	}
+}
+
 func getHandler(h ...slog.Handler) slog.Handler {
 	if len(h) > 0 {
 		return h[0]
 	}
-	return slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: LevelInfo})
+	return slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
+		AddSource: true,
+		Level:     getLevel(os.Getenv("LOG_LEVEL")),
+	})
 }
