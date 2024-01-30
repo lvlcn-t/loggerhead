@@ -42,7 +42,7 @@ func NewLogger(h ...slog.Handler) Logger {
 // The loggers root group is the provided name.
 func NewNamedLogger(name string, h ...slog.Handler) Logger {
 	return &logger{
-		core: With(newCoreLogger(getHandler(h...)), name),
+		core: With(newCoreLogger(getHandler(h...)), "name", name),
 	}
 }
 
