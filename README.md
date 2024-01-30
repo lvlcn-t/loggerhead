@@ -47,7 +47,7 @@ Loggerhead is a versatile and extendable logging library for Go, designed to enh
 To start using Loggerhead, install the package using:
 
 ```bash
-go get github.com/lvlcn-t/Loggerhead@v0.1.0
+go get github.com/lvlcn-t/Loggerhead@v0.2.0
 ```
 
 ### Basic Usage
