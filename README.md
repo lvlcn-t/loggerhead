@@ -47,7 +47,7 @@ Loggerhead is a versatile and extendable logging library for Go, designed to enh
 To start using Loggerhead, install the package using:
 
 ```bash
-go get github.com/lvlcn-t/Loggerhead@v0.2.0
+go get github.com/lvlcn-t/loggerhead@v0.2.0
 ```
 
 ### Basic Usage
@@ -58,13 +58,12 @@ Here's a simple example of how to use it in your Go application:
 package main
 
 import (
-    "github.com/lvlcn-t/Loggerhead/logger"
-    "log/slog"
+	"github.com/lvlcn-t/loggerhead/logger"
 )
 
 func main() {
-    log := logger.NewLogger()
-    log.Infof("This is an info message: %s", "Hello, logger!")
+	log := logger.NewLogger()
+	log.Infof("This is an info message: %s", "Hello, logger!")
 }
 ```
 
@@ -78,7 +77,7 @@ Loggerhead provides a comprehensive set of features for advanced logging in Go a
 
 This function initializes a new logger with default settings. It's the starting point for using Loggerhead in your application. 
 ```go
-  log := logger.NewLogger()
+log := logger.NewLogger()
 ```
 
 #### NewNamedLogger

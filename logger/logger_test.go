@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/lvlcn-t/Loggerhead/pkg/logger"
+	"github.com/lvlcn-t/loggerhead/logger"
 )
 
 func TestSomeLogging(t *testing.T) {
