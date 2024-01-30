@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"github.com/lvlcn-t/halog/internal/logger"
+	"github.com/lvlcn-t/Loggerhead/internal/logger"
 )
 
 type Logger = logger.Logger
