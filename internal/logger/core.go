@@ -5,7 +5,7 @@ import (
 	"log/slog"
 )
 
-var _ Core = (*slog.Logger)(nil)
+var _ Core = (*coreLogger)(nil)
 
 type Core interface {
 	// Debug logs at LevelDebug.
@@ -56,76 +56,20 @@ type coreLogger struct {
 	*slog.Logger
 }
 
-func newCoreLogger(h slog.Handler) Core {
+func newCoreLogger(h slog.Handler) *coreLogger {
 	return &coreLogger{
 		slog.New(h),
 	}
 }
 
-func With(l Core, args ...any) Core {
+func With(l Core, args ...any) *coreLogger {
 	return &coreLogger{
 		l.With(args...),
 	}
 }
 
-func WithGroup(l Core, name string) Core {
+func WithGroup(l Core, name string) *coreLogger {
 	return &coreLogger{
 		l.WithGroup(name),
 	}
-}
-
-func (l *logger) Debug(msg string, args ...any) {
-	l.core.Debug(msg, args...)
-}
-
-func (l *logger) DebugContext(ctx context.Context, msg string, args ...any) {
-	l.core.DebugContext(ctx, msg, args...)
-}
-
-func (l *logger) Info(msg string, args ...any) {
-	l.core.Info(msg, args...)
-}
-
-func (l *logger) InfoContext(ctx context.Context, msg string, args ...any) {
-	l.core.InfoContext(ctx, msg, args...)
-}
-
-func (l *logger) Warn(msg string, args ...any) {
-	l.core.Warn(msg, args...)
-}
-
-func (l *logger) WarnContext(ctx context.Context, msg string, args ...any) {
-	l.core.WarnContext(ctx, msg, args...)
-}
-
-func (l *logger) Error(msg string, args ...any) {
-	l.core.Error(msg, args...)
-}
-
-func (l *logger) ErrorContext(ctx context.Context, msg string, args ...any) {
-	l.core.ErrorContext(ctx, msg, args...)
-}
-
-func (l *logger) With(args ...any) *slog.Logger {
-	return l.core.With(args...)
-}
-
-func (l *logger) WithGroup(name string) *slog.Logger {
-	return l.core.WithGroup(name)
-}
-
-func (l *logger) Log(ctx context.Context, level Level, msg string, args ...any) {
-	l.core.Log(ctx, level, msg, args...)
-}
-
-func (l *logger) LogAttrs(ctx context.Context, level Level, msg string, attrs ...slog.Attr) {
-	l.core.LogAttrs(ctx, level, msg, attrs...)
-}
-
-func (l *logger) Handler() slog.Handler {
-	return l.core.Handler()
-}
-
-func (l *logger) Enabled(ctx context.Context, level Level) bool {
-	return l.core.Enabled(ctx, level)
 }

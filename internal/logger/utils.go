@@ -26,7 +26,7 @@ type Logger interface {
 }
 
 type logger struct {
-	core Core
+	*coreLogger
 }
 
 // NewLogger creates a new slog.Logger instance.
@@ -40,7 +40,7 @@ type logger struct {
 //	log.Info("Hello, world!")
 func NewLogger(h ...slog.Handler) Logger {
 	return &logger{
-		core: newCoreLogger(getHandler(h...)),
+		coreLogger: newCoreLogger(getHandler(h...)),
 	}
 }
 
@@ -51,7 +51,7 @@ func NewLogger(h ...slog.Handler) Logger {
 // The loggers root group is the provided name.
 func NewNamedLogger(name string, h ...slog.Handler) Logger {
 	return &logger{
-		core: With(newCoreLogger(getHandler(h...)), "name", name),
+		coreLogger: With(newCoreLogger(getHandler(h...)), "name", name),
 	}
 }
 
