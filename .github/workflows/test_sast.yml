@@ -1,9 +1,8 @@
 name: Test - SAST
 
 on:
-  {}
-  # push:
-  # pull_request:
+  push:
+  pull_request:
 
 permissions:
   contents: read
