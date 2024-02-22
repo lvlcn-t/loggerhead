@@ -26,6 +26,8 @@ import (
 	"os"
 	"reflect"
 	"testing"
+
+	clog "github.com/charmbracelet/log"
 )
 
 func TestNewLogger(t *testing.T) {
@@ -67,7 +69,7 @@ func TestNewLogger(t *testing.T) {
 
 			if tt.logLevelEnv != "" {
 				want := getLevel(tt.logLevelEnv)
-				got := log.Enabled(context.Background(), want)
+				got := log.Enabled(context.Background(), slog.Level(want))
 				if !got {
 					t.Errorf("Expected log level: %v", want)
 				}
@@ -179,6 +181,64 @@ func TestMiddleware(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			middleware(handler).ServeHTTP(w, req)
+		})
+	}
+}
+
+func TestNewBaseHandler(t *testing.T) {
+	tests := []struct {
+		name      string
+		format    string
+		level     string
+		wantLevel int
+	}{
+		{
+			name:      "Default handler",
+			format:    "",
+			level:     "",
+			wantLevel: int(slog.LevelInfo),
+		},
+		{
+			name:      "Text handler with custom log level",
+			format:    "TEXT",
+			level:     "DEBUG",
+			wantLevel: int(clog.DebugLevel),
+		},
+		{
+			name:      "JSON handler with custom log level",
+			format:    "JSON",
+			level:     "WARN",
+			wantLevel: int(slog.LevelWarn),
+		},
+		{
+			name:      "Invalid log level",
+			format:    "TEXT",
+			level:     "UNKNOWN",
+			wantLevel: int(clog.InfoLevel),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv("LOG_FORMAT", tt.format)
+			t.Setenv("LOG_LEVEL", tt.level)
+
+			handler := newBaseHandler()
+
+			if tt.format == "TEXT" {
+				if _, ok := handler.(*clog.Logger); !ok {
+					t.Errorf("Expected handler to be of type *log.Logger")
+				}
+			} else {
+				if _, ok := handler.(*slog.JSONHandler); !ok {
+					t.Errorf("Expected handler to be of type *slog.JSONHandler")
+				}
+			}
+
+			ok := handler.Enabled(context.Background(), slog.Level(tt.wantLevel))
+			if !ok {
+				t.Errorf("Expected log level: %v", tt.wantLevel)
+			}
 		})
 	}
 }

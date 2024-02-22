@@ -39,3 +39,10 @@ func TestFromContext(t *testing.T) {
 
 	logFromCtx.Info("Test")
 }
+
+func TestSomeLoggingWithEnv(t *testing.T) {
+	t.Setenv("LOG_LEVEL", "debug")
+	t.Setenv("LOG_FORMAT", "text")
+	log := logger.NewLogger()
+	log.Info("Test")
+}

@@ -75,17 +75,17 @@ func (l *logger) FatalContext(ctx context.Context, msg string, args ...any) {
 
 // getLevel takes a level string and maps it to the corresponding Level
 // Returns the level if no mapped level is found it returns info level
-func getLevel(level string) Level {
+func getLevel(level string) int {
 	switch strings.ToUpper(level) {
 	case "DEBUG":
-		return slog.LevelDebug
+		return int(slog.LevelDebug)
 	case "INFO":
-		return slog.LevelInfo
+		return int(slog.LevelInfo)
 	case "WARN", "WARNING":
-		return slog.LevelWarn
+		return int(slog.LevelWarn)
 	case "ERROR":
-		return slog.LevelError
+		return int(slog.LevelError)
 	default:
-		return slog.LevelInfo
+		return int(slog.LevelInfo)
 	}
 }

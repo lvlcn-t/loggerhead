@@ -5,6 +5,10 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strings"
+	"time"
+
+	clog "github.com/charmbracelet/log"
 )
 
 type Logger interface {
@@ -29,6 +33,11 @@ type logger struct {
 // If handlers are provided, the first handler in the slice is used; otherwise,
 // a default JSON handler writing to os.Stderr is used. This function allows for
 // custom configuration of logging handlers.
+//
+// Example:
+//
+//	log := logger.NewLogger()
+//	log.Info("Hello, world!")
 func NewLogger(h ...slog.Handler) Logger {
 	return &logger{
 		core: newCoreLogger(getHandler(h...)),
@@ -84,12 +93,28 @@ func Middleware(ctx context.Context) func(http.Handler) http.Handler {
 	}
 }
 
+// getHandler returns the first handler in the slice if it exists; otherwise, it returns a new base handler.
 func getHandler(h ...slog.Handler) slog.Handler {
 	if len(h) > 0 {
 		return h[0]
 	}
+	return newBaseHandler()
+}
+
+// newBaseHandler returns a new slog.Handler based on the environment variables.
+func newBaseHandler() slog.Handler {
+	l := getLevel(os.Getenv("LOG_LEVEL"))
+	if strings.ToUpper(os.Getenv("LOG_FORMAT")) == "TEXT" {
+		h := clog.New(os.Stderr)
+		h.SetTimeFormat(time.Kitchen)
+		h.SetReportTimestamp(true)
+		h.SetReportCaller(true)
+		h.SetLevel(clog.Level(l))
+		return h
+	}
+
 	return slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
 		AddSource: true,
-		Level:     getLevel(os.Getenv("LOG_LEVEL")),
+		Level:     slog.Level(l),
 	})
 }
