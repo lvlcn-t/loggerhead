@@ -32,43 +32,55 @@ import (
 
 func TestNewLogger(t *testing.T) {
 	tests := []struct {
-		name        string
-		handlers    []slog.Handler
-		expectErr   bool
-		logLevelEnv string
+		name     string
+		handlers []slog.Handler
+		wantErr  bool
+		levelEnv string
 	}{
 		{
-			name:        "No handler with default log level",
-			handlers:    nil,
-			expectErr:   false,
-			logLevelEnv: "",
+			name:     "No handler with default log level",
+			handlers: nil,
+			wantErr:  false,
+			levelEnv: "",
 		},
 		{
-			name:        "No handler with DEBUG log level",
-			handlers:    nil,
-			expectErr:   false,
-			logLevelEnv: "DEBUG",
+			name:     "No handler with DEBUG log level",
+			handlers: nil,
+			wantErr:  false,
+			levelEnv: "DEBUG",
 		},
 		{
-			name:        "Custom handler provided",
-			handlers:    []slog.Handler{slog.NewJSONHandler(os.Stdout, nil)},
-			expectErr:   false,
-			logLevelEnv: "",
+			name:     "No handler with NOTICE log level",
+			handlers: nil,
+			wantErr:  false,
+			levelEnv: "NOTICE",
+		},
+		{
+			name:     "No handler with ERROR log level",
+			handlers: nil,
+			wantErr:  false,
+			levelEnv: "ERROR",
+		},
+		{
+			name:     "Custom handler provided",
+			handlers: []slog.Handler{slog.NewJSONHandler(os.Stdout, nil)},
+			wantErr:  false,
+			levelEnv: "",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Setenv("LOG_LEVEL", tt.logLevelEnv)
+			t.Setenv("LOG_LEVEL", tt.levelEnv)
 
 			log := NewLogger(tt.handlers...)
 
-			if (log == nil) != tt.expectErr {
-				t.Errorf("NewLogger() error = %v, expectedErr %v", log == nil, tt.expectErr)
+			if (log == nil) != tt.wantErr {
+				t.Errorf("NewLogger() error = %v, expectedErr %v", log == nil, tt.wantErr)
 			}
 
-			if tt.logLevelEnv != "" {
-				want := getLevel(tt.logLevelEnv)
+			if tt.levelEnv != "" {
+				want := getLevel(tt.levelEnv)
 				got := log.Enabled(context.Background(), slog.Level(want))
 				if !got {
 					t.Errorf("Expected log level: %v", want)

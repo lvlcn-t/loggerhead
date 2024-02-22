@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"log/slog"
 	"testing"
 )
 
@@ -11,13 +10,15 @@ func TestGetLevel(t *testing.T) {
 		input string
 		want  Level
 	}{
-		{"Empty string", "", slog.LevelInfo},
-		{"Debug level", "DEBUG", slog.LevelDebug},
-		{"Info level", "INFO", slog.LevelInfo},
-		{"Warn level", "WARN", slog.LevelWarn},
-		{"Warning level", "WARNING", slog.LevelWarn},
-		{"Error level", "ERROR", slog.LevelError},
-		{"Invalid level", "UNKNOWN", slog.LevelInfo},
+		{"Empty string", "", LevelInfo},
+		{"Trace level", "TRACE", LevelTrace},
+		{"Debug level", "DEBUG", LevelDebug},
+		{"Info level", "INFO", LevelInfo},
+		{"Notice level", "NOTICE", LevelNotice},
+		{"Warn level", "WARN", LevelWarn},
+		{"Warning level", "WARNING", LevelWarn},
+		{"Error level", "ERROR", LevelError},
+		{"Invalid level", "UNKNOWN", LevelInfo},
 	}
 
 	for _, tt := range tests {

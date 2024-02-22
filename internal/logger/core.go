@@ -7,6 +7,8 @@ import (
 
 var _ Core = (*coreLogger)(nil)
 
+// Core is the wrapper around slog.Logger that provides the core logging API.
+// It is a subset of the Logger interface.
 type Core interface {
 	// Debug logs at LevelDebug.
 	Debug(msg string, args ...any)
@@ -52,22 +54,27 @@ type Core interface {
 	Enabled(ctx context.Context, level Level) bool
 }
 
+// coreLogger is a wrapper around slog.Logger that implements the Core interface.
 type coreLogger struct {
+	// slog.Logger is the underlying logger.
 	*slog.Logger
 }
 
+// newCoreLogger returns a new Core that wraps the given slog.Handler.
 func newCoreLogger(h slog.Handler) *coreLogger {
 	return &coreLogger{
 		slog.New(h),
 	}
 }
 
+// With returns a new Core that wraps the given slog.Logger with the given attributes.
 func With(l Core, args ...any) *coreLogger {
 	return &coreLogger{
 		l.With(args...),
 	}
 }
 
+// WithGroup returns a new Core that wraps the given slog.Logger with the given group name.
 func WithGroup(l Core, name string) *coreLogger {
 	return &coreLogger{
 		l.WithGroup(name),

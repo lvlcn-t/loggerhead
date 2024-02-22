@@ -11,6 +11,8 @@ import (
 	clog "github.com/charmbracelet/log"
 )
 
+// Logger is the interface for the logger.
+// It extends the Core interface with additional logging methods.
 type Logger interface {
 	Core
 	Debugf(msg string, args ...any)
@@ -25,7 +27,9 @@ type Logger interface {
 	PanicContext(ctx context.Context, msg string, args ...any)
 }
 
+// logger implements the Logger interface.
 type logger struct {
+	// coreLogger is the underlying slog.Logger.
 	*coreLogger
 }
 
