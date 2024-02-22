@@ -84,19 +84,16 @@ func TestNewLogger(t *testing.T) {
 
 func TestNewContextWithLogger(t *testing.T) {
 	tests := []struct {
-		name         string
-		parentCtx    context.Context
-		expectedType Logger
+		name      string
+		parentCtx context.Context
 	}{
 		{
-			name:         "With Background context",
-			parentCtx:    context.Background(),
-			expectedType: (Logger)(nil),
+			name:      "With Background context",
+			parentCtx: context.Background(),
 		},
 		{
-			name:         "With already set logger in context",
-			parentCtx:    context.WithValue(context.Background(), logger{}, NewLogger()),
-			expectedType: (Logger)(nil),
+			name:      "With already set logger in context",
+			parentCtx: context.WithValue(context.Background(), logger{}, NewLogger()),
 		},
 	}
 

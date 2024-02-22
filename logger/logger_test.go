@@ -7,7 +7,7 @@ import (
 	"github.com/lvlcn-t/loggerhead/logger"
 )
 
-func TestSomeLogging(t *testing.T) {
+func TestSomeLogging(_ *testing.T) {
 	log := logger.NewNamedLogger("Main")
 	log.Info("MainTest")
 	log = logger.NewLogger()
@@ -16,28 +16,18 @@ func TestSomeLogging(t *testing.T) {
 }
 
 func TestIntoContext(t *testing.T) {
-	// get named logger
 	log := logger.NewNamedLogger("Test")
-
-	// propagate logger to context
 	ctx := logger.IntoContext(context.Background(), log)
-
-	// check if logger is available in context
 	if l := logger.FromContext(ctx); l != log {
 		t.Errorf("Logger not found in context")
 	}
 }
 
-func TestFromContext(t *testing.T) {
-	// get named logger
+func TestFromContext(_ *testing.T) {
 	log := logger.NewNamedLogger("Test")
-
-	// propagate logger to context
 	ctx := logger.IntoContext(context.Background(), log)
-
-	logFromCtx := logger.FromContext(ctx)
-
-	logFromCtx.Info("Test")
+	loc := logger.FromContext(ctx)
+	loc.Info("Test")
 }
 
 func TestSomeLoggingWithEnv(t *testing.T) {
