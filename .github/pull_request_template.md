@@ -4,9 +4,9 @@
 
 ## Changes
 
-<!-- Explain what you've changed
- For example should you add your commit messages and
- additional descriptions to these changes -->
+<!-- Explain what you've changed -->
+
+For additional information look at the commits.
 
 ## Tests done
 
