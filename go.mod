@@ -1,6 +1,6 @@
 module github.com/lvlcn-t/loggerhead
 
-go 1.21
+go 1.22
 
 require github.com/charmbracelet/log v0.3.1
 
