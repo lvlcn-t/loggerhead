@@ -47,7 +47,7 @@ Loggerhead is a versatile and extendable logging library for Go, designed to enh
 To start using Loggerhead, install the package using:
 
 ```bash
-go get github.com/lvlcn-t/loggerhead@v0.2.0
+go get github.com/lvlcn-t/loggerhead@v0.2.3
 ```
 
 ### Basic Usage
@@ -136,11 +136,11 @@ http.Handle("/", logger.Middleware(context.Background())(handler))
 
 Loggerhead is designed to be extendable. Developers can write their own log handling functions, customize log formats, and integrate with different logging backends or systems.
 
-For further examples and detailed usage, please refer to the [_tbd_](./examples) directory in our repository.
+For further examples and detailed usage, please refer to the [examples](./examples) directory in our repository.
 
 ## Contributing
 
-Contributions are welcome! Please refer to the [CONTRIBUTING](#CONTRIBUTING.md) file for guidelines on how to contribute to this project.
+Contributions are welcome! Please refer to the [CONTRIBUTING](CONTRIBUTING.md) file for guidelines on how to contribute to this project.
 
 ## License
 This library is licensed under the [MIT License](LICENSE), see the LICENSE file for details.
