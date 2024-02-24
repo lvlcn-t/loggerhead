@@ -11,9 +11,12 @@ import (
 	clog "github.com/charmbracelet/log"
 )
 
+var _ Logger = (*logger)(nil)
+
 // Logger is the interface for the logger.
 // It extends the Core interface with additional logging methods.
 type Logger interface {
+	// Core is the Core interface, which is the wrapper around slog.Logger that provides the core logging API.
 	Core
 	// Debugf logs at LevelDebug.
 	// Arguments are handled in the manner of fmt.Printf.
