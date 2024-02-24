@@ -5,108 +5,122 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"strings"
-)
-
-// Level is the type of log levels.
-type Level = slog.Level
-
-const (
-	LevelTrace  Level = slog.Level(-8)
-	LevelDebug  Level = slog.LevelDebug
-	LevelInfo   Level = slog.LevelInfo
-	LevelNotice Level = slog.Level(2)
-	LevelWarn   Level = slog.LevelWarn
-	LevelError  Level = slog.LevelError
-	LevelPanic  Level = slog.Level(12)
-	LevelFatal  Level = slog.Level(16)
+	"runtime"
+	"time"
 )
 
 // Debugf logs at LevelDebug.
 // Arguments are handled in the manner of fmt.Printf.
 func (l *logger) Debugf(msg string, args ...any) {
-	formattedMsg := fmt.Sprintf(msg, args...)
-	l.Debug(formattedMsg)
+	if !l.Enabled(context.Background(), LevelDebug) {
+		return
+	}
+	pc := getCaller(2)
+	r := slog.NewRecord(time.Now(), LevelDebug, fmt.Sprintf(msg, args...), pc)
+	_ = l.Handler().Handle(context.Background(), r)
 }
 
 // Infof logs at LevelInfo.
 // Arguments are handled in the manner of fmt.Printf.
 func (l *logger) Infof(msg string, args ...any) {
-	formattedMsg := fmt.Sprintf(msg, args...)
-	l.Info(formattedMsg)
+	if !l.Enabled(context.Background(), LevelInfo) {
+		return
+	}
+	pc := getCaller(2)
+	r := slog.NewRecord(time.Now(), LevelInfo, fmt.Sprintf(msg, args...), pc)
+	_ = l.Handler().Handle(context.Background(), r)
 }
 
 // Warnf logs at LevelWarn.
 // Arguments are handled in the manner of fmt.Printf.
 func (l *logger) Warnf(msg string, args ...any) {
-	formattedMsg := fmt.Sprintf(msg, args...)
-	l.Warn(formattedMsg)
+	if !l.Enabled(context.Background(), LevelWarn) {
+		return
+	}
+	pc := getCaller(2)
+	r := slog.NewRecord(time.Now(), LevelWarn, fmt.Sprintf(msg, args...), pc)
+	_ = l.Handler().Handle(context.Background(), r)
 }
 
 // Errorf logs at LevelError.
 // Arguments are handled in the manner of fmt.Printf.
 func (l *logger) Errorf(msg string, args ...any) {
-	formattedMsg := fmt.Sprintf(msg, args...)
-	l.Error(formattedMsg)
+	if !l.Enabled(context.Background(), LevelError) {
+		return
+	}
+	pc := getCaller(2)
+	r := slog.NewRecord(time.Now(), LevelError, fmt.Sprintf(msg, args...), pc)
+	_ = l.Handler().Handle(context.Background(), r)
 }
 
 // Panic logs at [LevelPanic] and then panics.
 func (l *logger) Panic(msg string, args ...any) {
-	l.Log(context.Background(), LevelPanic, msg, args...)
+	pc := getCaller(2)
+	r := slog.NewRecord(time.Now(), LevelPanic, msg, pc)
+	r.Add(args...)
+	_ = l.Handler().Handle(context.Background(), r)
 	panic(msg)
 }
 
 // Panicf logs at LevelPanic and then panics.
 // Arguments are handled in the manner of fmt.Printf.
 func (l *logger) Panicf(msg string, args ...any) {
-	formattedMsg := fmt.Sprintf(msg, args...)
-	l.Log(context.Background(), LevelPanic, formattedMsg)
-	panic(formattedMsg)
+	fmsg := fmt.Sprintf(msg, args...)
+	pc := getCaller(2)
+	r := slog.NewRecord(time.Now(), LevelPanic, fmsg, pc)
+	_ = l.Handler().Handle(context.Background(), r)
+	panic(fmsg)
 }
 
 // PanicContext logs at [LevelPanic] with the given context and then panics.
 func (l *logger) PanicContext(ctx context.Context, msg string, args ...any) {
-	l.Log(ctx, LevelPanic, msg, args...)
+	pc := getCaller(2)
+	r := slog.NewRecord(time.Now(), LevelPanic, msg, pc)
+	r.Add(args...)
+	_ = l.Handler().Handle(ctx, r)
 	panic(msg)
 }
 
 // Fatal logs at [LevelFatal] and then calls os.Exit(1).
 func (l *logger) Fatal(msg string, args ...any) {
-	l.Log(context.Background(), LevelFatal, msg, args...)
+	pc := getCaller(2)
+	r := slog.NewRecord(time.Now(), LevelFatal, msg, pc)
+	r.Add(args...)
+	_ = l.Handler().Handle(context.Background(), r)
 	os.Exit(1)
 }
 
 // Fatalf logs at LevelFatal and then calls os.Exit(1).
 // Arguments are handled in the manner of fmt.Printf.
 func (l *logger) Fatalf(msg string, args ...any) {
-	formattedMsg := fmt.Sprintf(msg, args...)
-	l.Log(context.Background(), LevelFatal, formattedMsg)
+	pc := getCaller(2)
+	r := slog.NewRecord(time.Now(), LevelPanic, fmt.Sprintf(msg, args...), pc)
+	_ = l.Handler().Handle(context.Background(), r)
 	os.Exit(1)
 }
 
 // FatalContext logs at [LevelFatal] with the given context and then calls os.Exit(1).
 func (l *logger) FatalContext(ctx context.Context, msg string, args ...any) {
-	l.Log(ctx, LevelFatal, msg, args...)
+	pc := getCaller(2)
+	r := slog.NewRecord(time.Now(), LevelFatal, msg, pc)
+	r.Add(args...)
+	_ = l.Handler().Handle(ctx, r)
 	os.Exit(1)
 }
 
-// getLevel takes a level string and maps it to the corresponding Level
-// Returns the level if no mapped level is found it returns info level
-func getLevel(level string) int {
-	switch strings.ToUpper(level) {
-	case "TRACE":
-		return int(LevelTrace)
-	case "DEBUG":
-		return int(LevelDebug)
-	case "INFO":
-		return int(LevelInfo)
-	case "NOTICE":
-		return int(LevelNotice)
-	case "WARN", "WARNING":
-		return int(LevelWarn)
-	case "ERROR":
-		return int(LevelError)
-	default:
-		return int(LevelInfo)
-	}
+// getCaller returns the program counter of the caller at a given depth.
+// The depth is the number of stack frames to ascend, with 0 identifying the
+// getCaller function itself, 1 identifying the caller that invoked getCaller,
+// and so on.
+//
+// Example:
+//
+//	pc := getCaller(1) // Returns the program counter of the caller of the function that invoked getCaller.
+//	pc := getCaller(2) // Returns the program counter of the caller of the function that invoked the function that invoked getCaller.
+func getCaller(depth uint8) uintptr { //nolint: unparam
+	d := int(depth) + 1
+
+	var pcs [1]uintptr
+	runtime.Callers(d, pcs[:])
+	return pcs[0]
 }

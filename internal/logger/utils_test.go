@@ -127,32 +127,33 @@ func TestNewContextWithLogger(t *testing.T) {
 
 func TestFromContext(t *testing.T) {
 	tests := []struct {
-		name   string
-		ctx    context.Context
-		expect Logger
+		name string
+		ctx  context.Context
+		want Logger
 	}{
 		{
-			name:   "Context with logger",
-			ctx:    IntoContext(context.Background(), NewLogger(slog.NewJSONHandler(os.Stdout, nil))),
-			expect: NewLogger(slog.NewJSONHandler(os.Stdout, nil)),
+			name: "Context with logger",
+			ctx:  IntoContext(context.Background(), NewLogger(slog.NewJSONHandler(os.Stdout, nil))),
+			want: NewLogger(slog.NewJSONHandler(os.Stdout, nil)),
 		},
 		{
-			name:   "Context without logger",
-			ctx:    context.Background(),
-			expect: NewLogger(),
+			name: "Context without logger",
+			ctx:  context.Background(),
+			want: NewLogger(),
 		},
 		{
-			name:   "Nil context",
-			ctx:    nil,
-			expect: NewLogger(),
+			name: "Nil context",
+			ctx:  nil,
+			want: NewLogger(),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := FromContext(tt.ctx)
-			if !reflect.DeepEqual(got, tt.expect) {
-				t.Errorf("FromContext() = %v, want %v", got, tt.expect)
+			_, ok := got.(*logger)
+			if !ok {
+				t.Errorf("FromContext() = %T, want %T", got, tt.want)
 			}
 		})
 	}

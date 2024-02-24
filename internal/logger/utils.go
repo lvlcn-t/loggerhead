@@ -15,16 +15,32 @@ import (
 // It extends the Core interface with additional logging methods.
 type Logger interface {
 	Core
+	// Debugf logs at LevelDebug.
+	// Arguments are handled in the manner of fmt.Printf.
 	Debugf(msg string, args ...any)
+	// Infof logs at LevelInfo.
+	// Arguments are handled in the manner of fmt.Printf.
 	Infof(msg string, args ...any)
+	// Warnf logs at LevelWarn.
+	// Arguments are handled in the manner of fmt.Printf.
 	Warnf(msg string, args ...any)
+	// Errorf logs at LevelError.
+	// Arguments are handled in the manner of fmt.Printf.
 	Errorf(msg string, args ...any)
-	Fatal(msg string, args ...any)
-	Fatalf(msg string, args ...any)
-	FatalContext(ctx context.Context, msg string, args ...any)
+	// Panic logs at LevelPanic and then panics with the given message.
 	Panic(msg string, args ...any)
+	// Panicf logs at LevelPanic and then panics.
+	// Arguments are handled in the manner of fmt.Printf.
 	Panicf(msg string, args ...any)
+	// PanicContext logs at LevelPanic with the given context and then panics with the given message.
 	PanicContext(ctx context.Context, msg string, args ...any)
+	// Fatal logs at LevelFatal and then calls os.Exit(1).
+	Fatal(msg string, args ...any)
+	// Fatalf logs at LevelFatal and then calls os.Exit(1).
+	// Arguments are handled in the manner of fmt.Printf.
+	Fatalf(msg string, args ...any)
+	// FatalContext logs at LevelFatal with the given context and then calls os.Exit(1).
+	FatalContext(ctx context.Context, msg string, args ...any)
 }
 
 // logger implements the Logger interface.
@@ -118,7 +134,17 @@ func newBaseHandler() slog.Handler {
 	}
 
 	return slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
-		AddSource: true,
-		Level:     slog.Level(l),
+		AddSource:   true,
+		Level:       Level(l),
+		ReplaceAttr: replaceAttr,
 	})
+}
+
+// replaceAttr is the replacement function for slog.HandlerOptions.
+func replaceAttr(_ []string, a slog.Attr) slog.Attr {
+	if a.Key == slog.LevelKey {
+		lev := a.Value.Any().(Level)
+		a.Value = slog.StringValue(getLevelString(lev))
+	}
+	return a
 }
