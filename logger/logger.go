@@ -12,9 +12,6 @@ import (
 // Its build on top of slog.Logger and extends it with additional logging methods.
 type Logger = logger.Logger
 
-// Level is the type for log levels.
-type Level logger.Level
-
 // NewLogger creates a new Logger instance.
 // If handlers are provided, the first handler in the slice is used; otherwise,
 // a default JSON handler writing to os.Stderr is used. This function allows for
