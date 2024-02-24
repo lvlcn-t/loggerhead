@@ -1,6 +1,7 @@
 # Loggerhead - Logging Library<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
 
 <p align="center">
+    <a href="https://pkg.go.dev/github.com/lvlcn-t/loggerhead"><img src="https://pkg.go.dev/badge/github.com/lvlcn-t/loggerhead.svg" alt="Go Reference"></a>
     <a href="/../../commits/" title="Last Commit"><img src="https://img.shields.io/github/last-commit/lvlcn-t/loggerhead?style=flat"></a>
     <a href="/../../issues" title="Open Issues"><img src="https://img.shields.io/github/issues/lvlcn-t/loggerhead?style=flat"></a>
     <a href="/../../pulls" title="Open Pull Requests"><img src="https://img.shields.io/github/issues-pr/lvlcn-t/loggerhead?style=flat"></a>
