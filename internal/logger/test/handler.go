@@ -19,7 +19,7 @@ func (m MockHandler) Enabled(ctx context.Context, level slog.Level) bool {
 	return true
 }
 
-func (m MockHandler) Handle(ctx context.Context, r slog.Record) error {
+func (m MockHandler) Handle(ctx context.Context, r slog.Record) error { //nolint:gocritic // irrelevant
 	if m.HandleFunc != nil {
 		return m.HandleFunc(ctx, r)
 	}
