@@ -49,7 +49,7 @@ type logger struct {
 	*coreLogger
 }
 
-// NewLogger creates a new slog.Logger instance.
+// NewLogger creates a new Logger instance.
 // If handlers are provided, the first handler in the slice is used; otherwise,
 // a default JSON handler writing to os.Stderr is used. This function allows for
 // custom configuration of logging handlers.
@@ -64,11 +64,10 @@ func NewLogger(h ...slog.Handler) Logger {
 	}
 }
 
-// NewLogger creates a new slog.Logger instance.
+// NewNamedLogger creates a new Logger instance with the provided name.
 // If handlers are provided, the first handler in the slice is used; otherwise,
 // a default JSON handler writing to os.Stderr is used. This function allows for
 // custom configuration of logging handlers.
-// The loggers root group is the provided name.
 func NewNamedLogger(name string, h ...slog.Handler) Logger {
 	return &logger{
 		coreLogger: With(newCoreLogger(getHandler(h...)), "name", name),
