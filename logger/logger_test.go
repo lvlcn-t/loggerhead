@@ -8,11 +8,12 @@ import (
 )
 
 func TestSomeLogging(_ *testing.T) {
+	ctx := context.Background()
 	log := logger.NewNamedLogger("Main")
-	log.Info("MainTest")
+	log.Info(ctx, "MainTest")
 	log = logger.NewLogger()
-	log.Info("NoNamedLoggerTest")
-	log.With("testKey", "testValue").Info("WithTest")
+	log.Info(ctx, "NoNamedLoggerTest")
+	log.With("testKey", "testValue").Info(ctx, "WithTest")
 }
 
 func TestIntoContext(t *testing.T) {
@@ -27,12 +28,13 @@ func TestFromContext(_ *testing.T) {
 	log := logger.NewNamedLogger("Test")
 	ctx := logger.IntoContext(context.Background(), log)
 	loc := logger.FromContext(ctx)
-	loc.Info("Test")
+	loc.Info(ctx, "Test")
 }
 
 func TestSomeLoggingWithEnv(t *testing.T) {
 	t.Setenv("LOG_LEVEL", "debug")
 	t.Setenv("LOG_FORMAT", "text")
+	ctx := context.Background()
 	log := logger.NewLogger()
-	log.Info("Test")
+	log.Info(ctx, "Test")
 }

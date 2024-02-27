@@ -3,38 +3,56 @@ package logger
 import (
 	"context"
 	"log/slog"
+	"runtime"
+	"time"
 )
 
-var _ Core = (*coreLogger)(nil)
+var _ Logger = (*logger)(nil)
 
-// Core is the wrapper around slog.Logger that provides the core logging API.
-// It is a subset of the Logger interface.
-type Core interface {
+// Logger is the interface for the logger.
+// It extends the Core interface with additional logging methods.
+type Logger interface {
 	// Debug logs at LevelDebug.
-	Debug(msg string, args ...any)
-	// DebugContext logs at LevelDebug with the given context.
-	DebugContext(ctx context.Context, msg string, args ...any)
+	Debug(ctx context.Context, msg string, args ...any)
+	// Debugf logs at LevelDebug.
+	// Arguments are handled in the manner of fmt.Printf.
+	Debugf(ctx context.Context, msg string, args ...any)
 	// Info logs at LevelInfo.
-	Info(msg string, args ...any)
-	// InfoContext logs at LevelInfo with the given context.
-	InfoContext(ctx context.Context, msg string, args ...any)
+	Info(ctx context.Context, msg string, args ...any)
+	// Infof logs at LevelInfo.
+	// Arguments are handled in the manner of fmt.Printf.
+	Infof(ctx context.Context, msg string, args ...any)
 	// Warn logs at LevelWarn.
-	Warn(msg string, args ...any)
-	// WarnContext logs at LevelWarn with the given context.
-	WarnContext(ctx context.Context, msg string, args ...any)
+	Warn(ctx context.Context, msg string, args ...any)
+	// Warnf logs at LevelWarn.
+	// Arguments are handled in the manner of fmt.Printf.
+	Warnf(ctx context.Context, msg string, args ...any)
 	// Error logs at LevelError.
-	Error(msg string, args ...any)
-	// ErrorContext logs at LevelError with the given context.
-	ErrorContext(ctx context.Context, msg string, args ...any)
+	Error(ctx context.Context, msg string, args ...any)
+	// Errorf logs at LevelError.
+	// Arguments are handled in the manner of fmt.Printf.
+	Errorf(ctx context.Context, msg string, args ...any)
+	// Panic logs at LevelPanic and then panics with the given message.
+	Panic(ctx context.Context, msg string, args ...any)
+	// Panicf logs at LevelPanic and then panics.
+	// Arguments are handled in the manner of fmt.Printf.
+	Panicf(ctx context.Context, msg string, args ...any)
+	// Fatal logs at LevelFatal and then calls os.Exit(1).
+	Fatal(ctx context.Context, msg string, args ...any)
+	// Fatalf logs at LevelFatal and then calls os.Exit(1).
+	// Arguments are handled in the manner of fmt.Printf.
+	Fatalf(ctx context.Context, msg string, args ...any)
+
 	// With calls Logger.With on the default logger.
-	With(args ...any) *slog.Logger
+	With(args ...any) Logger
 	// WithGroup returns a Logger that starts a group, if name is non-empty.
 	// The keys of all attributes added to the Logger will be qualified by the given
 	// name. (How that qualification happens depends on the [Handler.WithGroup]
 	// method of the Logger's Handler.)
 	//
 	// If name is empty, WithGroup returns the receiver.
-	WithGroup(name string) *slog.Logger
+	WithGroup(name string) Logger
+
 	// Log emits a log record with the current time and the given level and message.
 	// The Record's Attrs consist of the Logger's attributes followed by
 	// the Attrs specified by args.
@@ -48,35 +66,90 @@ type Core interface {
 	Log(ctx context.Context, level Level, msg string, args ...any)
 	// LogAttrs is a more efficient version of [Logger.Log] that accepts only Attrs.
 	LogAttrs(ctx context.Context, level Level, msg string, attrs ...slog.Attr)
+
 	// Handler returns l's Handler.
 	Handler() slog.Handler
 	// Enabled reports whether l emits log records at the given context and level.
 	Enabled(ctx context.Context, level Level) bool
+
+	// ToSlog returns the underlying slog.Logger.
+	ToSlog() *slog.Logger
 }
 
-// coreLogger is a wrapper around slog.Logger that implements the Core interface.
-type coreLogger struct {
-	// slog.Logger is the underlying logger.
-	*slog.Logger
+// logger implements the Logger interface.
+// It is a wrapper around slog.Logger.
+type logger struct{ *slog.Logger }
+
+// Debug logs at LevelDebug.
+func (l *logger) Debug(ctx context.Context, msg string, a ...any) {
+	l.logAttrs(ctx, LevelDebug, msg, a...)
 }
 
-// newCoreLogger returns a new Core that wraps the given slog.Handler.
-func newCoreLogger(h slog.Handler) *coreLogger {
-	return &coreLogger{
-		slog.New(h),
+// Info logs at LevelInfo.
+func (l *logger) Info(ctx context.Context, msg string, a ...any) {
+	l.logAttrs(ctx, LevelInfo, msg, a...)
+}
+
+// Warn logs at LevelWarn.
+func (l *logger) Warn(ctx context.Context, msg string, a ...any) {
+	l.logAttrs(ctx, LevelWarn, msg, a...)
+}
+
+// Error logs at LevelError.
+func (l *logger) Error(ctx context.Context, msg string, a ...any) {
+	l.logAttrs(ctx, LevelError, msg, a...)
+}
+
+// With calls Logger.With on the default logger.
+func (l *logger) With(a ...any) Logger {
+	return &logger{Logger: l.Logger.With(a...)}
+}
+
+// WithGroup returns a Logger that starts a group, if name is non-empty.
+func (l *logger) WithGroup(name string) Logger {
+	return &logger{Logger: l.Logger.WithGroup(name)}
+}
+
+// Log emits a log record with the current time and the given level and message.
+func (l *logger) Log(ctx context.Context, level Level, msg string, a ...any) {
+	l.Logger.Log(ctx, level, msg, a...)
+}
+
+// Logf emits a log record with the current time and the given level, message, and attributes.
+func (l *logger) LogAttrs(ctx context.Context, level Level, msg string, attrs ...slog.Attr) {
+	l.Logger.LogAttrs(ctx, level, msg, attrs...)
+}
+
+// logAttrs emits a log record with the current time and the given level, message, and attributes.
+func (l *logger) logAttrs(ctx context.Context, level Level, msg string, a ...any) {
+	if !l.Enabled(ctx, level) {
+		return
 	}
+
+	pc := getCaller(3)
+
+	r := slog.NewRecord(time.Now(), level, msg, pc)
+	r.Add(a...)
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	_ = l.Handler().Handle(ctx, r)
 }
 
-// With returns a new Core that wraps the given slog.Logger with the given attributes.
-func With(l Core, args ...any) *coreLogger {
-	return &coreLogger{
-		l.With(args...),
-	}
-}
+// getCaller returns the program counter of the caller at a given depth.
+// The depth is the number of stack frames to ascend, with 0 identifying the
+// getCaller function itself, 1 identifying the caller that invoked getCaller,
+// and so on.
+//
+// Example:
+//
+//	pc := getCaller(1) // Returns the program counter of the caller of the function that invoked getCaller.
+//	pc := getCaller(2) // Returns the program counter of the caller of the function that invoked the function that invoked getCaller.
+func getCaller(depth uint8) uintptr { //nolint: unparam
+	d := int(depth) + 1
 
-// WithGroup returns a new Core that wraps the given slog.Logger with the given group name.
-func WithGroup(l Core, name string) *coreLogger {
-	return &coreLogger{
-		l.WithGroup(name),
-	}
+	var pcs [1]uintptr
+	runtime.Callers(d, pcs[:])
+	return pcs[0]
 }

@@ -11,47 +11,6 @@ import (
 	clog "github.com/charmbracelet/log"
 )
 
-var _ Logger = (*logger)(nil)
-
-// Logger is the interface for the logger.
-// It extends the Core interface with additional logging methods.
-type Logger interface {
-	// Core is the Core interface, which is the wrapper around slog.Logger that provides the core logging API.
-	Core
-	// Debugf logs at LevelDebug.
-	// Arguments are handled in the manner of fmt.Printf.
-	Debugf(msg string, args ...any)
-	// Infof logs at LevelInfo.
-	// Arguments are handled in the manner of fmt.Printf.
-	Infof(msg string, args ...any)
-	// Warnf logs at LevelWarn.
-	// Arguments are handled in the manner of fmt.Printf.
-	Warnf(msg string, args ...any)
-	// Errorf logs at LevelError.
-	// Arguments are handled in the manner of fmt.Printf.
-	Errorf(msg string, args ...any)
-	// Panic logs at LevelPanic and then panics with the given message.
-	Panic(msg string, args ...any)
-	// Panicf logs at LevelPanic and then panics.
-	// Arguments are handled in the manner of fmt.Printf.
-	Panicf(msg string, args ...any)
-	// PanicContext logs at LevelPanic with the given context and then panics with the given message.
-	PanicContext(ctx context.Context, msg string, args ...any)
-	// Fatal logs at LevelFatal and then calls os.Exit(1).
-	Fatal(msg string, args ...any)
-	// Fatalf logs at LevelFatal and then calls os.Exit(1).
-	// Arguments are handled in the manner of fmt.Printf.
-	Fatalf(msg string, args ...any)
-	// FatalContext logs at LevelFatal with the given context and then calls os.Exit(1).
-	FatalContext(ctx context.Context, msg string, args ...any)
-}
-
-// logger implements the Logger interface.
-type logger struct {
-	// coreLogger is the underlying slog.Logger.
-	*coreLogger
-}
-
 // NewLogger creates a new Logger instance.
 // If handlers are provided, the first handler in the slice is used; otherwise,
 // a default JSON handler writing to os.Stderr is used. This function allows for
@@ -63,7 +22,7 @@ type logger struct {
 //	log.Info("Hello, world!")
 func NewLogger(h ...slog.Handler) Logger {
 	return &logger{
-		coreLogger: newCoreLogger(getHandler(h...)),
+		Logger: slog.New(getHandler(h...)),
 	}
 }
 
@@ -73,7 +32,7 @@ func NewLogger(h ...slog.Handler) Logger {
 // custom configuration of logging handlers.
 func NewNamedLogger(name string, h ...slog.Handler) Logger {
 	return &logger{
-		coreLogger: With(newCoreLogger(getHandler(h...)), "name", name),
+		Logger: slog.New(getHandler(h...)).With("name", name),
 	}
 }
 
@@ -113,6 +72,16 @@ func Middleware(ctx context.Context) func(http.Handler) http.Handler {
 			next.ServeHTTP(w, r.WithContext(reqCtx))
 		})
 	}
+}
+
+// ToSlog returns the underlying slog.Logger.
+func (l *logger) ToSlog() *slog.Logger {
+	return l.Logger
+}
+
+// FromSlog returns a new Logger instance based on the provided slog.Logger.
+func FromSlog(l *slog.Logger) Logger {
+	return &logger{l}
 }
 
 // getHandler returns the first handler in the slice if it exists; otherwise, it returns a new base handler.

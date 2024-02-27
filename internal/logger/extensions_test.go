@@ -11,6 +11,7 @@ import (
 type logFunc func(l Logger, msg string, args ...any)
 
 func TestLogger_LevelExtensions(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name    string
 		logFunc logFunc
@@ -19,7 +20,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 		{
 			name: "debug level disabled",
 			logFunc: func(l Logger, msg string, args ...any) {
-				l.Debugf(msg, args...)
+				l.Debugf(ctx, msg, args...)
 			},
 			handler: test.MockHandler{
 				EnabledFunc: func(ctx context.Context, level slog.Level) bool {
@@ -34,7 +35,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 		{
 			name: "debug level enabled",
 			logFunc: func(l Logger, msg string, args ...any) {
-				l.Debugf(msg, args...)
+				l.Debugf(ctx, msg, args...)
 			},
 			handler: test.MockHandler{
 				HandleFunc: func(ctx context.Context, r slog.Record) error {
@@ -52,7 +53,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 		{
 			name: "info level disabled",
 			logFunc: func(l Logger, msg string, args ...any) {
-				l.Infof(msg, args...)
+				l.Infof(ctx, msg, args...)
 			},
 			handler: test.MockHandler{
 				EnabledFunc: func(ctx context.Context, level slog.Level) bool {
@@ -67,7 +68,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 		{
 			name: "info level enabled",
 			logFunc: func(l Logger, msg string, args ...any) {
-				l.Infof(msg, args...)
+				l.Infof(ctx, msg, args...)
 			},
 			handler: test.MockHandler{
 				HandleFunc: func(ctx context.Context, r slog.Record) error {
@@ -85,7 +86,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 		{
 			name: "warn level disabled",
 			logFunc: func(l Logger, msg string, args ...any) {
-				l.Warnf(msg, args...)
+				l.Warnf(ctx, msg, args...)
 			},
 			handler: test.MockHandler{
 				EnabledFunc: func(ctx context.Context, level slog.Level) bool {
@@ -100,7 +101,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 		{
 			name: "warn level enabled",
 			logFunc: func(l Logger, msg string, args ...any) {
-				l.Warnf(msg, args...)
+				l.Warnf(ctx, msg, args...)
 			},
 			handler: test.MockHandler{
 				HandleFunc: func(ctx context.Context, r slog.Record) error {
@@ -118,7 +119,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 		{
 			name: "error level disabled",
 			logFunc: func(l Logger, msg string, args ...any) {
-				l.Errorf(msg, args...)
+				l.Errorf(ctx, msg, args...)
 			},
 			handler: test.MockHandler{
 				EnabledFunc: func(ctx context.Context, level slog.Level) bool {
@@ -133,7 +134,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 		{
 			name: "error level enabled",
 			logFunc: func(l Logger, msg string, args ...any) {
-				l.Errorf(msg, args...)
+				l.Errorf(ctx, msg, args...)
 			},
 			handler: test.MockHandler{
 				HandleFunc: func(ctx context.Context, r slog.Record) error {
@@ -158,6 +159,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 }
 
 func TestLogger_PanicLevel(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name    string
 		attrs   []any
@@ -168,7 +170,7 @@ func TestLogger_PanicLevel(t *testing.T) {
 			name:  "panic level",
 			attrs: []any{"key", "value"},
 			logFunc: func(l Logger, msg string, args ...any) {
-				l.Panic(msg, args...)
+				l.Panic(ctx, msg, args...)
 			},
 			handler: test.MockHandler{
 				HandleFunc: func(ctx context.Context, r slog.Record) error {
@@ -186,7 +188,7 @@ func TestLogger_PanicLevel(t *testing.T) {
 		{
 			name: "panicf level",
 			logFunc: func(l Logger, msg string, args ...any) {
-				l.Panicf(msg, args...)
+				l.Panicf(ctx, msg, args...)
 			},
 			handler: test.MockHandler{
 				HandleFunc: func(ctx context.Context, r slog.Record) error {
@@ -196,25 +198,6 @@ func TestLogger_PanicLevel(t *testing.T) {
 					}
 					if r.NumAttrs() != 0 {
 						t.Errorf("Expected 0 attributes, got %d", r.NumAttrs())
-					}
-					return nil
-				},
-			},
-		},
-		{
-			name:  "panic context level",
-			attrs: []any{"key", "value"},
-			logFunc: func(l Logger, msg string, args ...any) {
-				l.PanicContext(context.Background(), msg, args...)
-			},
-			handler: test.MockHandler{
-				HandleFunc: func(ctx context.Context, r slog.Record) error {
-					level := LevelPanic
-					if r.Level != level {
-						t.Errorf("Expected level to be [%s], got [%s]", getLevelString(level), r.Level)
-					}
-					if r.NumAttrs() == 0 {
-						t.Errorf("Expected attributes, got %d", r.NumAttrs())
 					}
 					return nil
 				},
