@@ -9,8 +9,7 @@ import (
 
 var _ Logger = (*logger)(nil)
 
-// Logger is the interface for the logger.
-// It extends the Core interface with additional logging methods.
+// Logger is a interface that provides logging methods.
 type Logger interface {
 	// Debug logs at LevelDebug.
 	Debug(msg string, args ...any)
