@@ -158,7 +158,6 @@ func TestLogger_LevelExtensions(t *testing.T) {
 }
 
 func TestLogger_PanicLevel(t *testing.T) {
-	ctx := context.Background()
 	tests := []struct {
 		name    string
 		attrs   []any
@@ -203,10 +202,10 @@ func TestLogger_PanicLevel(t *testing.T) {
 			},
 		},
 		{
-			name:  "panic level context",
+			name:  "panic context level",
 			attrs: []any{"key", "value"},
 			logFunc: func(l Logger, msg string, args ...any) {
-				l.PanicContext(ctx, msg, args...)
+				l.PanicContext(context.Background(), msg, args...)
 			},
 			handler: test.MockHandler{
 				HandleFunc: func(ctx context.Context, r slog.Record) error {
@@ -215,7 +214,7 @@ func TestLogger_PanicLevel(t *testing.T) {
 						t.Errorf("Expected level to be [%s], got [%s]", getLevelString(level), r.Level)
 					}
 					if r.NumAttrs() == 0 {
-						t.Errorf("Expected  attributes, got %d", r.NumAttrs())
+						t.Errorf("Expected attributes, got %d", r.NumAttrs())
 					}
 					return nil
 				},
