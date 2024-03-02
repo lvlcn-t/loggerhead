@@ -177,7 +177,7 @@ func (l *logger) logAttrs(ctx context.Context, level Level, msg string, a ...any
 //
 //	pc := getCaller(1) // Returns the program counter of the caller of the function that invoked getCaller.
 //	pc := getCaller(2) // Returns the program counter of the caller of the function that invoked the function that invoked getCaller.
-func getCaller(depth uint8) uintptr { //nolint: unparam
+func getCaller(depth uint8) uintptr {
 	d := int(depth) + 1
 
 	var pcs [1]uintptr
