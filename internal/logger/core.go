@@ -13,35 +13,47 @@ var _ Logger = (*logger)(nil)
 // It extends the Core interface with additional logging methods.
 type Logger interface {
 	// Debug logs at LevelDebug.
-	Debug(ctx context.Context, msg string, args ...any)
+	Debug(msg string, args ...any)
 	// Debugf logs at LevelDebug.
 	// Arguments are handled in the manner of fmt.Printf.
-	Debugf(ctx context.Context, msg string, args ...any)
+	Debugf(msg string, args ...any)
+	// DebugContext logs at LevelDebug with the given context.
+	DebugContext(ctx context.Context, msg string, args ...any)
 	// Info logs at LevelInfo.
-	Info(ctx context.Context, msg string, args ...any)
+	Info(msg string, args ...any)
 	// Infof logs at LevelInfo.
 	// Arguments are handled in the manner of fmt.Printf.
-	Infof(ctx context.Context, msg string, args ...any)
+	Infof(msg string, args ...any)
+	// InfoContext logs at LevelInfo with the given context.
+	InfoContext(ctx context.Context, msg string, args ...any)
 	// Warn logs at LevelWarn.
-	Warn(ctx context.Context, msg string, args ...any)
+	Warn(msg string, args ...any)
 	// Warnf logs at LevelWarn.
 	// Arguments are handled in the manner of fmt.Printf.
-	Warnf(ctx context.Context, msg string, args ...any)
+	Warnf(msg string, args ...any)
+	// WarnContext logs at LevelWarn with the given context.
+	WarnContext(ctx context.Context, msg string, args ...any)
 	// Error logs at LevelError.
-	Error(ctx context.Context, msg string, args ...any)
+	Error(msg string, args ...any)
 	// Errorf logs at LevelError.
 	// Arguments are handled in the manner of fmt.Printf.
-	Errorf(ctx context.Context, msg string, args ...any)
+	Errorf(msg string, args ...any)
+	// ErrorContext logs at LevelError with the given context.
+	ErrorContext(ctx context.Context, msg string, args ...any)
 	// Panic logs at LevelPanic and then panics with the given message.
-	Panic(ctx context.Context, msg string, args ...any)
+	Panic(msg string, args ...any)
 	// Panicf logs at LevelPanic and then panics.
 	// Arguments are handled in the manner of fmt.Printf.
-	Panicf(ctx context.Context, msg string, args ...any)
+	Panicf(msg string, args ...any)
+	// PanicContext logs at LevelPanic with the given context and then panics with the given message.
+	PanicContext(ctx context.Context, msg string, args ...any)
 	// Fatal logs at LevelFatal and then calls os.Exit(1).
-	Fatal(ctx context.Context, msg string, args ...any)
+	Fatal(msg string, args ...any)
 	// Fatalf logs at LevelFatal and then calls os.Exit(1).
 	// Arguments are handled in the manner of fmt.Printf.
-	Fatalf(ctx context.Context, msg string, args ...any)
+	Fatalf(msg string, args ...any)
+	// FatalContext logs at LevelFatal with the given context and then calls os.Exit(1).
+	FatalContext(ctx context.Context, msg string, args ...any)
 
 	// With calls Logger.With on the default logger.
 	With(args ...any) Logger
@@ -81,22 +93,42 @@ type Logger interface {
 type logger struct{ *slog.Logger }
 
 // Debug logs at LevelDebug.
-func (l *logger) Debug(ctx context.Context, msg string, a ...any) {
+func (l *logger) Debug(msg string, a ...any) {
+	l.logAttrs(context.Background(), LevelDebug, msg, a...)
+}
+
+// DebugContext logs at LevelDebug.
+func (l *logger) DebugContext(ctx context.Context, msg string, a ...any) {
 	l.logAttrs(ctx, LevelDebug, msg, a...)
 }
 
 // Info logs at LevelInfo.
-func (l *logger) Info(ctx context.Context, msg string, a ...any) {
+func (l *logger) Info(msg string, a ...any) {
+	l.logAttrs(context.Background(), LevelInfo, msg, a...)
+}
+
+// InfoContext logs at LevelInfo.
+func (l *logger) InfoContext(ctx context.Context, msg string, a ...any) {
 	l.logAttrs(ctx, LevelInfo, msg, a...)
 }
 
 // Warn logs at LevelWarn.
-func (l *logger) Warn(ctx context.Context, msg string, a ...any) {
+func (l *logger) Warn(msg string, a ...any) {
+	l.logAttrs(context.Background(), LevelWarn, msg, a...)
+}
+
+// WarnContext logs at LevelWarn.
+func (l *logger) WarnContext(ctx context.Context, msg string, a ...any) {
 	l.logAttrs(ctx, LevelWarn, msg, a...)
 }
 
 // Error logs at LevelError.
-func (l *logger) Error(ctx context.Context, msg string, a ...any) {
+func (l *logger) Error(msg string, a ...any) {
+	l.logAttrs(context.Background(), LevelError, msg, a...)
+}
+
+// ErrorContext logs at LevelError.
+func (l *logger) ErrorContext(ctx context.Context, msg string, a ...any) {
 	l.logAttrs(ctx, LevelError, msg, a...)
 }
 
