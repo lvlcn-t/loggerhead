@@ -176,7 +176,6 @@ Custom handlers also enable integration with various logging backends and servic
 
 For further examples and detailed usage, including how to implement and integrate custom `slog.Handler` instances, please refer to the [examples](./examples) directory in our repository.
 
-
 ## Contributing
 
 Contributions are welcome! Please refer to the [CONTRIBUTING](CONTRIBUTING.md) file for guidelines on how to contribute to this project.

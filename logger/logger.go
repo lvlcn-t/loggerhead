@@ -58,3 +58,8 @@ func FromContext(ctx context.Context) logger.Logger {
 func Middleware(ctx context.Context) func(http.Handler) http.Handler {
 	return logger.Middleware(ctx)
 }
+
+// FromSlog returns a new Logger instance from the provided slog.Logger.
+func FromSlog(l *slog.Logger) logger.Logger {
+	return logger.FromSlog(l)
+}
