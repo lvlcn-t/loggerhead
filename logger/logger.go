@@ -12,31 +12,40 @@ import (
 // Its build on top of slog.Logger and extends it with additional logging methods.
 type Logger = logger.Logger
 
-// NewLogger creates a new Logger instance.
-// If handlers are provided, the first handler in the slice is used; otherwise,
-// a default JSON handler writing to os.Stderr is used. This function allows for
-// custom configuration of logging handlers.
+// Opts is the optional configuration for the logger.
+type Opts = logger.Opts
+
+// NewLogger creates a new Logger instance with optional configurations.
+// The logger can be customized by passing an Opts struct which allows for
+// setting the log level, format, OpenTelemetry support, and a custom handler.
+// If no Opts are provided, default settings are applied based on environment variables or internal defaults.
 //
 // Example:
 //
-//	log := logger.NewLogger()
+//	opts := logger.Opts{Level: "INFO", Format: "JSON", OpenTelemetry: true}
+//	log := logger.NewLogger(opts)
 //	log.Info("Hello, world!")
-func NewLogger(h ...slog.Handler) logger.Logger {
-	return logger.NewLogger(h...)
+func NewLogger(o ...logger.Opts) logger.Logger {
+	return logger.NewLogger(o...)
 }
 
-// NewNamedLogger creates a new Logger instance with the provided name.
-// If handlers are provided, the first handler in the slice is used; otherwise,
-// a default JSON handler writing to os.Stderr is used. This function allows for
-// custom configuration of logging handlers.
-func NewNamedLogger(name string, h ...slog.Handler) logger.Logger {
-	return logger.NewNamedLogger(name, h...)
+// NewNamedLogger creates a new Logger instance with the provided name and optional configurations.
+// This function allows for the same level of customization as NewLogger, with the addition of setting a logger name.
+//
+// Example:
+//
+//	opts := logger.Opts{Level: "DEBUG", Format: "TEXT"}
+//	log := logger.NewNamedLogger("myServiceLogger", opts)
+func NewNamedLogger(name string, o ...logger.Opts) logger.Logger {
+	return logger.NewNamedLogger(name, o...)
 }
 
 // NewContextWithLogger creates a new context based on the provided parent context.
 // It embeds a logger into this new context, which is a child of the logger from the parent context.
 // The child logger inherits settings from the parent.
 // Returns the child context and its cancel function to cancel the new context.
+//
+// Note: If no logger is found in the parent context, a new logger with the default configuration is embedded into the new context.
 func NewContextWithLogger(parent context.Context) (context.Context, context.CancelFunc) {
 	return logger.NewContextWithLogger(parent)
 }

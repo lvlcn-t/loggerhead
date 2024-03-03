@@ -31,11 +31,11 @@ func (l *loggerExtension) Success(msg string, args ...any) {
 
 func NewLogger() Logger {
 	return &loggerExtension{
-		Logger: logger.NewLogger(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Logger: logger.NewLogger(logger.Opts{
+			Handler: slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 				ReplaceAttr: replaceAttr,
 			}),
-		),
+		}),
 	}
 }
 

@@ -10,42 +10,53 @@ import (
 	"testing"
 
 	clog "github.com/charmbracelet/log"
+	otel "github.com/remychantenay/slog-otel"
 )
 
 func TestNewLogger(t *testing.T) {
 	tests := []struct {
 		name     string
-		handlers []slog.Handler
+		opts     []Opts
 		wantErr  bool
 		levelEnv string
 	}{
 		{
 			name:     "No handler with default log level",
-			handlers: nil,
+			opts:     nil,
 			wantErr:  false,
 			levelEnv: "",
 		},
 		{
 			name:     "No handler with DEBUG log level",
-			handlers: nil,
+			opts:     nil,
 			wantErr:  false,
 			levelEnv: "DEBUG",
 		},
 		{
 			name:     "No handler with NOTICE log level",
-			handlers: nil,
+			opts:     nil,
 			wantErr:  false,
 			levelEnv: "NOTICE",
 		},
 		{
 			name:     "No handler with ERROR log level",
-			handlers: nil,
+			opts:     nil,
 			wantErr:  false,
 			levelEnv: "ERROR",
 		},
 		{
-			name:     "Custom handler provided",
-			handlers: []slog.Handler{slog.NewJSONHandler(os.Stdout, nil)},
+			name: "Custom handler provided",
+			opts: []Opts{
+				{Handler: slog.NewJSONHandler(os.Stdout, nil)},
+			},
+			wantErr:  false,
+			levelEnv: "",
+		},
+		{
+			name: "Otel enabled",
+			opts: []Opts{
+				{OpenTelemetry: true},
+			},
 			wantErr:  false,
 			levelEnv: "",
 		},
@@ -55,7 +66,7 @@ func TestNewLogger(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Setenv("LOG_LEVEL", tt.levelEnv)
 
-			log := NewLogger(tt.handlers...)
+			log := NewLogger(tt.opts...)
 
 			if (log == nil) != tt.wantErr {
 				t.Errorf("NewLogger() error = %v, expectedErr %v", log == nil, tt.wantErr)
@@ -69,8 +80,16 @@ func TestNewLogger(t *testing.T) {
 				}
 			}
 
-			if len(tt.handlers) > 0 && !reflect.DeepEqual(log.Handler(), tt.handlers[0]) {
-				t.Errorf("Handler not set correctly")
+			if len(tt.opts) > 0 {
+				if tt.opts[0].OpenTelemetry {
+					if _, ok := log.Handler().(*otel.OtelHandler); !ok {
+						t.Errorf("Want *otel.OtelHandler, got %T", log.Handler())
+					}
+					return
+				}
+				if !reflect.DeepEqual(log.Handler(), tt.opts[0].Handler) {
+					t.Errorf("Handler not set correctly")
+				}
 			}
 		})
 	}
@@ -115,8 +134,8 @@ func TestFromContext(t *testing.T) {
 	}{
 		{
 			name: "Context with logger",
-			ctx:  IntoContext(context.Background(), NewLogger(slog.NewJSONHandler(os.Stdout, nil))),
-			want: NewLogger(slog.NewJSONHandler(os.Stdout, nil)),
+			ctx:  IntoContext(context.Background(), NewLogger(Opts{Handler: slog.NewJSONHandler(os.Stdout, nil)})),
+			want: NewLogger(Opts{Handler: slog.NewJSONHandler(os.Stdout, nil)}),
 		},
 		{
 			name: "Context without logger",
@@ -214,8 +233,8 @@ func TestNewBaseHandler(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Setenv("LOG_FORMAT", tt.format)
 			t.Setenv("LOG_LEVEL", tt.level)
-
-			handler := newBaseHandler()
+			opts := newDefaultOpts()
+			handler := newBaseHandler(opts)
 
 			if tt.format == "TEXT" {
 				if _, ok := handler.(*clog.Logger); !ok {
