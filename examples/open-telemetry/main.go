@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"os"
 
 	"github.com/lvlcn-t/loggerhead/logger"
 	"go.opentelemetry.io/otel"
@@ -12,8 +11,8 @@ import (
 )
 
 func main() {
-	os.Setenv("LOG_FORMAT", "text")
 	log := logger.NewNamedLogger("otel-example", logger.Opts{
+		Format:        "text",
 		OpenTelemetry: true,
 	})
 
