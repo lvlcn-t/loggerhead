@@ -171,10 +171,10 @@ Loggerhead is designed to be highly extendable, offering several ways for develo
 Developers have the flexibility to use their own `slog.Handler` implementations with Loggerhead. This allows for complete control over how logs are processed, formatted, and outputted. Whether integrating with third-party logging services, applying unique log formatting, or implementing custom log filtering logic, you can pass your custom handler to `NewLogger` or `NewNamedLogger` functions to replace the default behavior.
 
 ```go
-  // Example of using a custom handler
-  log := logger.NewLogger(opts.Handler{
-    Handler: myCustomHandler,
-  })
+// Example of using a custom handler
+log := logger.NewLogger(logger.Opts{
+  Handler: myCustomHandler,
+})
 ```
 
 This feature is especially useful for applications with specific logging requirements not covered by the default handlers. By providing your own implementation, you can tailor the logging behavior to fit the needs of your application precisely.
