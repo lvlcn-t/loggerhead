@@ -31,6 +31,10 @@
       - [Custom Handlers](#custom-handlers)
       - [Custom Log Formats](#custom-log-formats)
       - [Integration with Logging Backends](#integration-with-logging-backends)
+      - [OpenTelemetry Integration](#opentelemetry-integration)
+        - [Enabling OpenTelemetry](#enabling-opentelemetry)
+        - [Usage with Context](#usage-with-context)
+        - [Advanced Scenarios](#advanced-scenarios)
     - [Usage Scenarios](#usage-scenarios)
   - [Contributing](#contributing)
   - [License](#license)
@@ -59,7 +63,7 @@ go get -u github.com/lvlcn-t/loggerhead
 
 ### Basic Usage
 
-Here's a simple example of how to use Loggerhead with default settings:
+To start using Loggerhead, you can create a logger instance with default settings or customize it using the `logger.Opts` struct. Loggerhead provides functions for both general and named loggers, allowing for easy differentiation between log sources.
 
 ```go
 package main
@@ -69,8 +73,15 @@ import (
 )
 
 func main() {
+  // Creating a default logger
   log := logger.NewLogger()
-  log.Infof("This is an info message: %s", "Hello, logger!")
+
+  // Creating a named logger with custom options
+  opts := logger.Opts{Level: "INFO", Format: "JSON"}
+  log := logger.NewNamedLogger("myServiceLogger", opts)
+
+  // Logging a message
+  log.Info("Hello, world!")
 }
 ```
 
@@ -82,7 +93,7 @@ Loggerhead provides a comprehensive set of features for advanced logging in Go a
 
 #### NewLogger
 
-This function initializes a new logger with default settings or [custom handlers](#custom-handlers) if provided. It's the starting point for using Loggerhead in your application.
+This function initializes a new logger with default settings or a [custom handler](#custom-handlers) if provided. It's the starting point for using Loggerhead in your application.
 
 ```go
 log := logger.NewLogger()
@@ -142,10 +153,14 @@ http.Handle("/", logger.Middleware(context.Background())(handler))
 
 ### Configuration via Environment Variables
 
-Loggerhead supports configuration of the default logger behavior through environment variables. This allows for easy customization of log level and format without altering the codebase:
+You can configure the logging behavior of the loggerhead library using environment variables. This allows you to adjust configurations without modifying your code.
 
-- `LOG_LEVEL`: Determines the log output level (e.g., DEBUG, INFO, WARN). This setting influences which logs are output based on their severity.
-- `LOG_FORMAT`: Specifies the log output format. Set to "TEXT" for human-readable logs or any other value for JSON format, which is the default.
+The following environment variables are supported:
+
+- `LOG_LEVEL`: Adjusts the minimum log level. This allows you to control the verbosity of the logs.
+  Available options are the standard log levels. For example: `DEBUG`, `INFO`, `WARN`, `ERROR`.
+- `LOG_FORMAT`: Sets the log format. This allows you to customize the format of the log messages.
+  Available options are `TEXT` and `JSON`.
 
 ### Extending Loggerhead
 
@@ -157,7 +172,9 @@ Developers have the flexibility to use their own `slog.Handler` implementations 
 
 ```go
   // Example of using a custom handler
-  log := logger.NewLogger(myCustomHandler)
+  log := logger.NewLogger(opts.Handler{
+    Handler: myCustomHandler,
+  })
 ```
 
 This feature is especially useful for applications with specific logging requirements not covered by the default handlers. By providing your own implementation, you can tailor the logging behavior to fit the needs of your application precisely.
@@ -170,13 +187,54 @@ While Loggerhead supports text and JSON formats out of the box, through custom `
 
 Custom handlers also enable integration with various logging backends and services. Whether you're sending logs to a file, a console, a database, or a cloud-based logging platform, you can encapsulate this logic within your handler and use it seamlessly with Loggerhead.
 
+#### OpenTelemetry Integration
+
+Loggerhead supports integration with [OpenTelemetry](https://opentelemetry.io/docs/), allowing for enriched logging with trace and metrics data. This feature is invaluable for applications that require observability and tracing capabilities. By enabling OpenTelemetry support, you can ensure that your logs include relevant tracing information, such as trace IDs and span IDs, linking log entries to specific operations in your application.
+
+##### Enabling OpenTelemetry
+
+To enable OpenTelemetry integration, set the `OpenTelemetry` flag to `true` in the `Opts` struct when creating a logger. This will automatically enrich your logs with OpenTelemetry data.
+
+```go
+log := logger.NewLogger(logger.Opts{
+  OpenTelemetry: true,
+})
+```
+
+##### Usage with Context
+
+When logging within a context that includes OpenTelemetry trace data, Loggerhead automatically includes this information in the logs. This integration allows for seamless correlation between logs and traces, making it easier to debug and monitor distributed applications.
+
+```go
+// Assuming the context has been configured with OpenTelemetry
+log.InfoContext(ctx, "This is a log message with trace context.")
+```
+
+##### Advanced Scenarios
+
+Loggerhead's OpenTelemetry integration is designed to be flexible, supporting advanced use cases such as:
+
+- **Custom Trace Attributes**: You can add custom attributes to your traces that are automatically included in your logs, providing more detailed and contextual information for each log entry.
+- **Baggage**: Utilize OpenTelemetry's baggage feature to pass additional metadata through the context, which can then be automatically included in logs for comprehensive tracing and debugging.
+
+```go
+// Example of using baggage to add user information to logs
+m1, _ := baggage.NewMember("user_id", "12345")
+m2, _ := baggage.NewMember("role", "admin")
+bag, _ := baggage.New(m1, m2)
+ctx := baggage.ContextWithBaggage(context.Background(), bag)
+
+log.InfoContext(ctx, "User action logged with baggage")
+```
+
 ### Usage Scenarios
 
 - **Application Logging**: Use Loggerhead for general application logging, capturing information ranging from debug messages to critical errors.
 - **Request Tracking**: In web applications, Loggerhead can be used to log and track HTTP requests, providing valuable insights for debugging and monitoring.
 - **Contextual Information**: With context-aware logging, Loggerhead is ideal for applications that require detailed logs with contextual information, especially useful in microservices and distributed systems.
+- **Enhanced Observability with OpenTelemetry**: When using OpenTelemetry, Loggerhead enriches logs with trace and metrics data, providing comprehensive observability for distributed applications. This includes linking logs to specific operations and tracing information, making it easier to debug and monitor complex systems.
 
-For further examples and detailed usage, including how to implement and integrate custom `slog.Handler` instances, please refer to the [examples](./examples) directory in our repository.
+For further examples and detailed usage, including how to implement and integrate custom `slog.Handler` instances or use OpenTelemetry with Loggerhead, please refer to the [examples](./examples) directory in our repository.
 
 ## Contributing
 
