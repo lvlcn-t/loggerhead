@@ -108,7 +108,7 @@ func getHandler(o ...Opts) slog.Handler {
 
 // newBaseHandler returns a new slog.Handler based on the environment variables.
 func newBaseHandler(o Opts) slog.Handler {
-	if strings.ToUpper(o.Format) == "TEXT" {
+	if strings.EqualFold(o.Format, "TEXT") {
 		h := clog.New(os.Stderr)
 		h.SetTimeFormat(time.Kitchen)
 		h.SetReportTimestamp(true)
