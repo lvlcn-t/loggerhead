@@ -60,6 +60,22 @@ func TestNewLogger(t *testing.T) {
 			wantErr:  false,
 			levelEnv: "",
 		},
+		{
+			name: "Otel enabled with WARN log level",
+			opts: []Opts{
+				{OpenTelemetry: true},
+			},
+			wantErr:  false,
+			levelEnv: "WARN",
+		},
+		{
+			name: "No handler with env ERROR log level and opts WARN log level",
+			opts: []Opts{
+				{Level: "WARN"},
+			},
+			wantErr:  false,
+			levelEnv: "ERROR",
+		},
 	}
 
 	for _, tt := range tests {
@@ -83,12 +99,14 @@ func TestNewLogger(t *testing.T) {
 			if len(tt.opts) > 0 {
 				if tt.opts[0].OpenTelemetry {
 					if _, ok := log.Handler().(*otel.OtelHandler); !ok {
-						t.Errorf("Want *otel.OtelHandler, got %T", log.Handler())
+						t.Errorf("Want %T, got %T", &otel.OtelHandler{}, log.Handler())
 					}
 					return
 				}
-				if !reflect.DeepEqual(log.Handler(), tt.opts[0].Handler) {
-					t.Errorf("Handler not set correctly")
+				if tt.opts[0].Handler != nil {
+					if !reflect.DeepEqual(log.Handler(), tt.opts[0].Handler) {
+						t.Errorf("Want %T, got %T", tt.opts[0].Handler, log.Handler())
+					}
 				}
 			}
 		})
