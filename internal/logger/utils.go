@@ -9,30 +9,35 @@ import (
 	"time"
 
 	clog "github.com/charmbracelet/log"
+	otel "github.com/remychantenay/slog-otel"
 )
 
-// NewLogger creates a new Logger instance.
-// If handlers are provided, the first handler in the slice is used; otherwise,
-// a default JSON handler writing to os.Stderr is used. This function allows for
-// custom configuration of logging handlers.
+// NewLogger creates a new Logger instance with optional configurations.
+// The logger can be customized by passing an Opts struct which allows for
+// setting the log level, format, OpenTelemetry support, and a custom handler.
+// If no Opts are provided, default settings are applied based on environment variables or internal defaults.
 //
 // Example:
 //
-//	log := logger.NewLogger()
+//	opts := logger.Opts{Level: "INFO", Format: "JSON", OpenTelemetry: true}
+//	log := logger.NewLogger(opts)
 //	log.Info("Hello, world!")
-func NewLogger(h ...slog.Handler) Logger {
+func NewLogger(o ...Opts) Logger {
 	return &logger{
-		Logger: slog.New(getHandler(h...)),
+		Logger: slog.New(getHandler(o...)),
 	}
 }
 
-// NewNamedLogger creates a new Logger instance with the provided name.
-// If handlers are provided, the first handler in the slice is used; otherwise,
-// a default JSON handler writing to os.Stderr is used. This function allows for
-// custom configuration of logging handlers.
-func NewNamedLogger(name string, h ...slog.Handler) Logger {
+// NewNamedLogger creates a new Logger instance with the provided name and optional configurations.
+// This function allows for the same level of customization as NewLogger, with the addition of setting a logger name.
+//
+// Example:
+//
+//	opts := logger.Opts{Level: "DEBUG", Format: "TEXT"}
+//	log := logger.NewNamedLogger("myServiceLogger", opts)
+func NewNamedLogger(name string, o ...Opts) Logger {
 	return &logger{
-		Logger: slog.New(getHandler(h...)).With("name", name),
+		Logger: slog.New(getHandler(o...)).With("name", name),
 	}
 }
 
@@ -40,9 +45,9 @@ func NewNamedLogger(name string, h ...slog.Handler) Logger {
 // It embeds a logger into this new context, which is a child of the logger from the parent context.
 // The child logger inherits settings from the parent.
 // Returns the child context and its cancel function to cancel the new context.
-func NewContextWithLogger(parent context.Context) (context.Context, context.CancelFunc) {
-	ctx, cancel := context.WithCancel(parent)
-	return IntoContext(ctx, FromContext(parent)), cancel
+func NewContextWithLogger(ctx context.Context) (context.Context, context.CancelFunc) {
+	c, cancel := context.WithCancel(ctx)
+	return IntoContext(c, FromContext(ctx)), cancel
 }
 
 // IntoContext embeds the provided slog.Logger into the given context and returns the modified context.
@@ -84,29 +89,37 @@ func FromSlog(l *slog.Logger) Logger {
 	return &logger{l}
 }
 
-// getHandler returns the first handler in the slice if it exists; otherwise, it returns a new base handler.
-func getHandler(h ...slog.Handler) slog.Handler {
-	if len(h) > 0 {
-		return h[0]
+// getHandler returns a new slog.Handler based on the provided options.
+//
+// It returns the handler based on several conditions:
+//  1. If a handler is provided, it returns the handler.
+//  2. If OpenTelemetry support is enabled, it returns a new OtelHandler.
+//  3. Otherwise, it returns a new BaseHandler.
+func getHandler(o ...Opts) slog.Handler {
+	opts := getOpts(o...)
+	if opts.Handler != nil {
+		return opts.Handler
 	}
-	return newBaseHandler()
+	if opts.OpenTelemetry {
+		return otel.NewOtelHandler()(newBaseHandler(opts))
+	}
+	return newBaseHandler(opts)
 }
 
 // newBaseHandler returns a new slog.Handler based on the environment variables.
-func newBaseHandler() slog.Handler {
-	l := getLevel(os.Getenv("LOG_LEVEL"))
-	if strings.ToUpper(os.Getenv("LOG_FORMAT")) == "TEXT" {
+func newBaseHandler(o Opts) slog.Handler {
+	if strings.ToUpper(o.Format) == "TEXT" {
 		h := clog.New(os.Stderr)
 		h.SetTimeFormat(time.Kitchen)
 		h.SetReportTimestamp(true)
 		h.SetReportCaller(true)
-		h.SetLevel(clog.Level(l))
+		h.SetLevel(clog.Level(getLevel(o.Level)))
 		return h
 	}
 
 	return slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
 		AddSource:   true,
-		Level:       Level(l),
+		Level:       Level(getLevel(o.Level)),
 		ReplaceAttr: replaceAttr,
 	})
 }

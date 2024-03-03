@@ -2,7 +2,10 @@ module github.com/lvlcn-t/loggerhead
 
 go 1.22
 
-require github.com/charmbracelet/log v0.3.1
+require (
+	github.com/charmbracelet/log v0.3.1
+	github.com/remychantenay/slog-otel v1.2.4
+)
 
 require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
@@ -14,6 +17,8 @@ require (
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.15.2 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
+	go.opentelemetry.io/otel v1.24.0 // indirect
+	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
-	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/sys v0.14.0 // indirect
 )

@@ -1,11 +1,13 @@
 # Loggerhead - Logging Library<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
 
+<!-- markdownlint-disable MD033 -->
 <p align="center">
     <a href="https://pkg.go.dev/github.com/lvlcn-t/loggerhead"><img src="https://pkg.go.dev/badge/github.com/lvlcn-t/loggerhead.svg" alt="Go Reference"></a>
-    <a href="/../../commits/" title="Last Commit"><img src="https://img.shields.io/github/last-commit/lvlcn-t/loggerhead?style=flat"></a>
-    <a href="/../../issues" title="Open Issues"><img src="https://img.shields.io/github/issues/lvlcn-t/loggerhead?style=flat"></a>
-    <a href="/../../pulls" title="Open Pull Requests"><img src="https://img.shields.io/github/issues-pr/lvlcn-t/loggerhead?style=flat"></a>
+    <a href="/../../commits/" title="Last Commit"><img src="https://img.shields.io/github/last-commit/lvlcn-t/loggerhead?style=flat" alt="Last Commit"></a>
+    <a href="/../../issues" title="Open Issues"><img src="https://img.shields.io/github/issues/lvlcn-t/loggerhead?style=flat" alt="Open Issues"></a>
+    <a href="/../../pulls" title="Open Pull Requests"><img src="https://img.shields.io/github/issues-pr/lvlcn-t/loggerhead?style=flat" alt="Open Pull Requests"></a>
 </p>
+<!-- markdownlint-enable MD033 -->
 
 <!-- code_chunk_output -->
 
@@ -57,7 +59,7 @@ go get -u github.com/lvlcn-t/loggerhead
 
 ### Basic Usage
 
-Here's a simple example of how to use it in your Go application:
+Here's a simple example of how to use Loggerhead with default settings:
 
 ```go
 package main
