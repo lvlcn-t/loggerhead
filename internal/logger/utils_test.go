@@ -16,7 +16,7 @@ import (
 func TestNewLogger(t *testing.T) {
 	tests := []struct {
 		name     string
-		opts     []Opts
+		opts     []Options
 		wantErr  bool
 		levelEnv string
 	}{
@@ -46,7 +46,7 @@ func TestNewLogger(t *testing.T) {
 		},
 		{
 			name: "Custom handler provided",
-			opts: []Opts{
+			opts: []Options{
 				{Handler: slog.NewJSONHandler(os.Stdout, nil)},
 			},
 			wantErr:  false,
@@ -54,7 +54,7 @@ func TestNewLogger(t *testing.T) {
 		},
 		{
 			name: "Otel enabled",
-			opts: []Opts{
+			opts: []Options{
 				{OpenTelemetry: true},
 			},
 			wantErr:  false,
@@ -62,15 +62,15 @@ func TestNewLogger(t *testing.T) {
 		},
 		{
 			name: "Otel enabled with WARN log level",
-			opts: []Opts{
+			opts: []Options{
 				{OpenTelemetry: true},
 			},
 			wantErr:  false,
 			levelEnv: "WARN",
 		},
 		{
-			name: "No handler with env ERROR log level and opts WARN log level",
-			opts: []Opts{
+			name: "No handler with env ERROR log level and options WARN log level",
+			opts: []Options{
 				{Level: "WARN"},
 			},
 			wantErr:  false,
@@ -152,8 +152,8 @@ func TestFromContext(t *testing.T) {
 	}{
 		{
 			name: "Context with logger",
-			ctx:  IntoContext(context.Background(), NewLogger(Opts{Handler: slog.NewJSONHandler(os.Stdout, nil)})),
-			want: NewLogger(Opts{Handler: slog.NewJSONHandler(os.Stdout, nil)}),
+			ctx:  IntoContext(context.Background(), NewLogger(Options{Handler: slog.NewJSONHandler(os.Stdout, nil)})),
+			want: NewLogger(Options{Handler: slog.NewJSONHandler(os.Stdout, nil)}),
 		},
 		{
 			name: "Context without logger",
@@ -251,7 +251,7 @@ func TestNewBaseHandler(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Setenv("LOG_FORMAT", tt.format)
 			t.Setenv("LOG_LEVEL", tt.level)
-			opts := newDefaultOpts()
+			opts := newDefaultOptions()
 			handler := newBaseHandler(opts)
 
 			if tt.format == "TEXT" {

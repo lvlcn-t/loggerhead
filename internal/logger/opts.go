@@ -5,8 +5,8 @@ import (
 	"os"
 )
 
-// Opts is the optional configuration for the logger.
-type Opts struct {
+// Options is the optional configuration for the logger.
+type Options struct {
 	// Level is the minimum log level.
 	Level string
 	// Format is the log format.
@@ -17,26 +17,26 @@ type Opts struct {
 	Handler slog.Handler
 }
 
-// newDefaultOpts returns the default Opts.
-func newDefaultOpts() Opts {
-	return Opts{
+// newDefaultOptions returns the default Options.
+func newDefaultOptions() Options {
+	return Options{
 		Level:         os.Getenv("LOG_LEVEL"),
 		Format:        os.Getenv("LOG_FORMAT"),
 		OpenTelemetry: false,
 	}
 }
 
-// getOpts returns the first Opts in the slice if it exists; otherwise, it returns the default Opts.
-func getOpts(o ...Opts) Opts {
-	opts := newDefaultOpts()
+// getOptions returns the first Options in the slice if it exists; otherwise, it returns the default Options.
+func getOptions(o ...Options) Options {
+	opts := newDefaultOptions()
 	if len(o) > 0 {
 		return o[0].merge(opts)
 	}
 	return opts
 }
 
-// merge merges the provided Opts with the receiver Opts.
-func (o Opts) merge(d Opts) Opts {
+// merge merges the provided Options with the receiver Options.
+func (o *Options) merge(d Options) Options {
 	_, ok := os.LookupEnv("LOG_LEVEL")
 	if !ok {
 		d.Level = o.Level

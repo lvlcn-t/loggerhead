@@ -31,7 +31,7 @@ func (l *loggerExtension) Success(msg string, args ...any) {
 
 func NewLogger() Logger {
 	return &loggerExtension{
-		Logger: logger.NewLogger(logger.Opts{
+		Logger: logger.NewLogger(logger.Options{
 			Handler: slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 				ReplaceAttr: replaceAttr,
 			}),

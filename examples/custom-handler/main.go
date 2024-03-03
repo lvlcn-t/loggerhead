@@ -13,7 +13,7 @@ func main() {
 	clog.SetLevel(log.DebugLevel)
 
 	// Create a new logger with the custom handler.
-	l := logger.NewLogger(logger.Opts{Handler: clog})
+	l := logger.NewLogger(logger.Options{Handler: clog})
 
 	// Log some messages.
 	l.Debug("I'm not sure what's happening.")

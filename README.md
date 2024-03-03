@@ -63,7 +63,7 @@ go get -u github.com/lvlcn-t/loggerhead
 
 ### Basic Usage
 
-To start using Loggerhead, you can create a logger instance with default settings or customize it using the `logger.Opts` struct. Loggerhead provides functions for both general and named loggers, allowing for easy differentiation between log sources.
+To start using Loggerhead, you can create a logger instance with default settings or customize it using the `logger.Options` struct. Loggerhead provides functions for both general and named loggers, allowing for easy differentiation between log sources.
 
 ```go
 package main
@@ -77,7 +77,7 @@ func main() {
   log := logger.NewLogger()
 
   // Creating a named logger with custom options
-  opts := logger.Opts{Level: "INFO", Format: "JSON"}
+  opts := logger.Options{Level: "INFO", Format: "JSON"}
   log := logger.NewNamedLogger("myServiceLogger", opts)
 
   // Logging a message
@@ -172,7 +172,7 @@ Developers have the flexibility to use their own `slog.Handler` implementations 
 
 ```go
 // Example of using a custom handler
-log := logger.NewLogger(logger.Opts{
+log := logger.NewLogger(logger.Options{
   Handler: myCustomHandler,
 })
 ```
@@ -193,10 +193,10 @@ Loggerhead supports integration with [OpenTelemetry](https://opentelemetry.io/do
 
 ##### Enabling OpenTelemetry
 
-To enable OpenTelemetry integration, set the `OpenTelemetry` flag to `true` in the `Opts` struct when creating a logger. This will automatically enrich your logs with OpenTelemetry data.
+To enable OpenTelemetry integration, set the `OpenTelemetry` flag to `true` in the `Options` struct when creating a logger. This will automatically enrich your logs with OpenTelemetry data.
 
 ```go
-log := logger.NewLogger(logger.Opts{
+log := logger.NewLogger(logger.Options{
   OpenTelemetry: true,
 })
 ```

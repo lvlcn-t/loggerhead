@@ -12,20 +12,20 @@ import (
 // Its build on top of slog.Logger and extends it with additional logging methods.
 type Logger = logger.Logger
 
-// Opts is the optional configuration for the logger.
-type Opts = logger.Opts
+// Options is the optional configuration for the logger.
+type Options = logger.Options
 
 // NewLogger creates a new Logger instance with optional configurations.
-// The logger can be customized by passing an Opts struct which allows for
+// The logger can be customized by passing an Options struct which allows for
 // setting the log level, format, OpenTelemetry support, and a custom handler.
-// If no Opts are provided, default settings are applied based on environment variables or internal defaults.
+// If no Options are provided, default settings are applied based on environment variables or internal defaults.
 //
 // Example:
 //
-//	opts := logger.Opts{Level: "INFO", Format: "JSON", OpenTelemetry: true}
+//	opts := logger.Options{Level: "INFO", Format: "JSON", OpenTelemetry: true}
 //	log := logger.NewLogger(opts)
 //	log.Info("Hello, world!")
-func NewLogger(o ...logger.Opts) logger.Logger {
+func NewLogger(o ...logger.Options) logger.Logger {
 	return logger.NewLogger(o...)
 }
 
@@ -34,9 +34,9 @@ func NewLogger(o ...logger.Opts) logger.Logger {
 //
 // Example:
 //
-//	opts := logger.Opts{Level: "DEBUG", Format: "TEXT"}
+//	opts := logger.Options{Level: "DEBUG", Format: "TEXT"}
 //	log := logger.NewNamedLogger("myServiceLogger", opts)
-func NewNamedLogger(name string, o ...logger.Opts) logger.Logger {
+func NewNamedLogger(name string, o ...logger.Options) logger.Logger {
 	return logger.NewNamedLogger(name, o...)
 }
 

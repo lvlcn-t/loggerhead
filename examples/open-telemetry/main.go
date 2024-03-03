@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	log := logger.NewNamedLogger("otel-example", logger.Opts{
+	log := logger.NewNamedLogger("otel-example", logger.Options{
 		Format:        "text",
 		OpenTelemetry: true,
 	})

@@ -13,16 +13,16 @@ import (
 )
 
 // NewLogger creates a new Logger instance with optional configurations.
-// The logger can be customized by passing an Opts struct which allows for
+// The logger can be customized by passing an Options struct which allows for
 // setting the log level, format, OpenTelemetry support, and a custom handler.
-// If no Opts are provided, default settings are applied based on environment variables or internal defaults.
+// If no Options are provided, default settings are applied based on environment variables or internal defaults.
 //
 // Example:
 //
-//	opts := logger.Opts{Level: "INFO", Format: "JSON", OpenTelemetry: true}
+//	opts := logger.Options{Level: "INFO", Format: "JSON", OpenTelemetry: true}
 //	log := logger.NewLogger(opts)
 //	log.Info("Hello, world!")
-func NewLogger(o ...Opts) Logger {
+func NewLogger(o ...Options) Logger {
 	return &logger{
 		Logger: slog.New(getHandler(o...)),
 	}
@@ -33,9 +33,9 @@ func NewLogger(o ...Opts) Logger {
 //
 // Example:
 //
-//	opts := logger.Opts{Level: "DEBUG", Format: "TEXT"}
+//	opts := logger.Options{Level: "DEBUG", Format: "TEXT"}
 //	log := logger.NewNamedLogger("myServiceLogger", opts)
-func NewNamedLogger(name string, o ...Opts) Logger {
+func NewNamedLogger(name string, o ...Options) Logger {
 	return &logger{
 		Logger: slog.New(getHandler(o...)).With("name", name),
 	}
@@ -95,8 +95,8 @@ func FromSlog(l *slog.Logger) Logger {
 //  1. If a handler is provided, it returns the handler.
 //  2. If OpenTelemetry support is enabled, it returns a new OtelHandler.
 //  3. Otherwise, it returns a new BaseHandler.
-func getHandler(o ...Opts) slog.Handler {
-	opts := getOpts(o...)
+func getHandler(o ...Options) slog.Handler {
+	opts := getOptions(o...)
 	if opts.Handler != nil {
 		return opts.Handler
 	}
@@ -107,7 +107,7 @@ func getHandler(o ...Opts) slog.Handler {
 }
 
 // newBaseHandler returns a new slog.Handler based on the environment variables.
-func newBaseHandler(o Opts) slog.Handler {
+func newBaseHandler(o Options) slog.Handler {
 	if strings.EqualFold(o.Format, "TEXT") {
 		h := clog.New(os.Stderr)
 		h.SetTimeFormat(time.Kitchen)

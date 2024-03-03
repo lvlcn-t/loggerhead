@@ -151,7 +151,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := NewLogger(Opts{Handler: tt.handler})
+			l := NewLogger(Options{Handler: tt.handler})
 			tt.logFunc(l, "test")
 		})
 	}
@@ -224,7 +224,7 @@ func TestLogger_PanicLevel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := NewLogger(Opts{Handler: tt.handler})
+			l := NewLogger(Options{Handler: tt.handler})
 			defer func() {
 				if r := recover(); r == nil {
 					t.Error("Expected panic")
