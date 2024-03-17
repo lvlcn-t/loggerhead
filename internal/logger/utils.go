@@ -109,12 +109,13 @@ func getHandler(o ...Options) slog.Handler {
 // newBaseHandler returns a new slog.Handler based on the environment variables.
 func newBaseHandler(o Options) slog.Handler {
 	if strings.EqualFold(o.Format, "TEXT") {
-		h := clog.New(os.Stderr)
-		h.SetTimeFormat(time.Kitchen)
-		h.SetReportTimestamp(true)
-		h.SetReportCaller(true)
-		h.SetLevel(clog.Level(getLevel(o.Level)))
-		return h
+		// TODO: customize level output as soon as clog v0.4.0 is released: https://github.com/charmbracelet/log/issues/88#issuecomment-2000161131
+		return clog.NewWithOptions(os.Stderr, clog.Options{
+			TimeFormat:      time.Kitchen,
+			Level:           clog.Level(getLevel(o.Level)),
+			ReportTimestamp: true,
+			ReportCaller:    true,
+		})
 	}
 
 	return slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
