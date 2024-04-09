@@ -6,9 +6,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: lvlcn-t/meta/.github/workflows/test.yml@main
-        with:
-          golangci_config: .golangci.yaml
-          additional_args: -v
+    uses: lvlcn-t/meta/.github/workflows/test.yml@main
+    with:
+      golangci_config: .golangci.yaml
+      additional_args: -v
