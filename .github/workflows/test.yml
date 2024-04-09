@@ -5,6 +5,12 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: read
+  checks: write
+
 jobs:
   test:
     uses: lvlcn-t/meta/.github/workflows/test.yml@main
