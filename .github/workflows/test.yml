@@ -9,5 +9,6 @@ jobs:
   test:
     uses: lvlcn-t/meta/.github/workflows/test.yml@main
     with:
+      go_version_file: go.mod
       golangci_config: .golangci.yaml
       additional_args: -v
