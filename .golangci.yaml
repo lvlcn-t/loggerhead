@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://golangci-lint.run/jsonschema/golangci.jsonschema.json
 linters-settings:
   depguard:
     # new configuration
@@ -52,6 +53,7 @@ linters-settings:
       - strings.SplitN
 
   govet:
+    shadow: true # This is an allowed field of govet, so ignore the error here
     settings:
       printf:
         funcs:
@@ -59,8 +61,7 @@ linters-settings:
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
-      shadow:
-        strict: true
+
   lll:
     line-length: 140
   misspell:
