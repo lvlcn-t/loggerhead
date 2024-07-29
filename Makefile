@@ -1,7 +1,3 @@
-lint:
-	pre-commit run --hook-stage pre-commit -a
-	pre-commit run --hook-stage pre-push -a
-
 examples: custom-handler-example extension-example otel-example simple-example webserver-example
 
 custom-handler-example:
