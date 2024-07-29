@@ -1,4 +1,3 @@
-default_stages: [pre-push]
 repos:
   - repo: local
     hooks:
@@ -27,4 +26,3 @@ repos:
     rev: v8.18.2
     hooks:
       - id: gitleaks
-        stages: [pre-commit]
