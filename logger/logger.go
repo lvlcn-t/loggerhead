@@ -50,13 +50,13 @@ func NewContextWithLogger(parent context.Context) (context.Context, context.Canc
 	return logger.NewContextWithLogger(parent)
 }
 
-// IntoContext embeds the provided slog.Logger into the given context and returns the modified context.
+// IntoContext embeds the provided [logger.Logger] into the given context and returns the modified context.
 // This function is used for passing loggers through context, allowing for context-aware logging.
 func IntoContext(ctx context.Context, log logger.Logger) context.Context {
 	return logger.IntoContext(ctx, log)
 }
 
-// FromContext extracts the slog.Logger from the provided context.
+// FromContext extracts the [logger.Logger] from the provided context.
 // If the context does not have a logger, it returns a new logger with the default configuration.
 // This function is useful for retrieving loggers from context in different parts of an application.
 func FromContext(ctx context.Context) logger.Logger {
@@ -68,7 +68,7 @@ func Middleware(ctx context.Context) func(http.Handler) http.Handler {
 	return logger.Middleware(ctx)
 }
 
-// FromSlog returns a new Logger instance from the provided slog.Logger.
+// FromSlog returns a new [Logger] instance from the provided [slog.Logger].
 func FromSlog(l *slog.Logger) logger.Logger {
 	return logger.FromSlog(l)
 }

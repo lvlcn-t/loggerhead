@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/lipgloss"
 	clog "github.com/charmbracelet/log"
 	otel "github.com/remychantenay/slog-otel"
 )
@@ -24,7 +25,7 @@ import (
 //	log.Info("Hello, world!")
 func NewLogger(o ...Options) Logger {
 	return &logger{
-		Logger: slog.New(getHandler(o...)),
+		Logger: slog.New(newHandler(o...)),
 	}
 }
 
@@ -37,7 +38,7 @@ func NewLogger(o ...Options) Logger {
 //	log := logger.NewNamedLogger("myServiceLogger", opts)
 func NewNamedLogger(name string, o ...Options) Logger {
 	return &logger{
-		Logger: slog.New(getHandler(o...)).With("name", name),
+		Logger: slog.New(newHandler(o...)).With("name", name),
 	}
 }
 
@@ -81,22 +82,30 @@ func Middleware(ctx context.Context) func(http.Handler) http.Handler {
 
 // ToSlog returns the underlying slog.Logger.
 func (l *logger) ToSlog() *slog.Logger {
+	if l.Logger == nil {
+		return slog.New(newHandler())
+	}
+
 	return l.Logger
 }
 
 // FromSlog returns a new Logger instance based on the provided slog.Logger.
 func FromSlog(l *slog.Logger) Logger {
+	if l == nil {
+		return NewLogger()
+	}
+
 	return &logger{l}
 }
 
-// getHandler returns a new slog.Handler based on the provided options.
+// newHandler returns a new slog.Handler based on the provided options.
 //
 // It returns the handler based on several conditions:
 //  1. If a handler is provided, it returns the handler.
 //  2. If OpenTelemetry support is enabled, it returns a new OtelHandler.
 //  3. Otherwise, it returns a new BaseHandler.
-func getHandler(o ...Options) slog.Handler {
-	opts := getOptions(o...)
+func newHandler(o ...Options) slog.Handler {
+	opts := newOptions(o...)
 	if opts.Handler != nil {
 		return opts.Handler
 	}
@@ -109,13 +118,14 @@ func getHandler(o ...Options) slog.Handler {
 // newBaseHandler returns a new slog.Handler based on the environment variables.
 func newBaseHandler(o Options) slog.Handler {
 	if strings.EqualFold(o.Format, "TEXT") {
-		// TODO: customize level output as soon as clog v0.4.0 is released: https://github.com/charmbracelet/log/issues/88#issuecomment-2000161131
-		return clog.NewWithOptions(os.Stderr, clog.Options{
+		log := clog.NewWithOptions(os.Stderr, clog.Options{
 			TimeFormat:      time.Kitchen,
 			Level:           clog.Level(getLevel(o.Level)),
 			ReportTimestamp: true,
 			ReportCaller:    true,
 		})
+		log.SetStyles(newCustomStyles())
+		return log
 	}
 
 	return slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
@@ -123,6 +133,21 @@ func newBaseHandler(o Options) slog.Handler {
 		Level:       Level(getLevel(o.Level)),
 		ReplaceAttr: replaceAttr,
 	})
+}
+
+// newCustomStyles returns the custom styles for the text logger.
+func newCustomStyles() *clog.Styles {
+	styles := clog.DefaultStyles()
+
+	for level, color := range LevelColors {
+		styles.Levels[clog.Level(int(level))] = lipgloss.NewStyle().
+			SetString(getLevelString(level)).
+			Bold(true).
+			MaxWidth(4). //nolint:mnd // 4 is the max width for the level string
+			Foreground(lipgloss.Color(color))
+	}
+
+	return styles
 }
 
 // replaceAttr is the replacement function for slog.HandlerOptions.

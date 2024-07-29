@@ -26,8 +26,8 @@ func newDefaultOptions() Options {
 	}
 }
 
-// getOptions returns the first Options in the slice if it exists; otherwise, it returns the default Options.
-func getOptions(o ...Options) Options {
+// newOptions creates a new Options instance with the provided Options merged with the default Options.
+func newOptions(o ...Options) Options {
 	opts := newDefaultOptions()
 	if len(o) > 0 {
 		return o[0].merge(opts)

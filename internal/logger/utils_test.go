@@ -178,6 +178,65 @@ func TestFromContext(t *testing.T) {
 	}
 }
 
+func TestFromSlog(t *testing.T) {
+	tests := []struct {
+		name string
+		l    *slog.Logger
+		want Logger
+	}{
+		{
+			name: "Slog logger",
+			l:    slog.New(slog.NewJSONHandler(os.Stdout, nil)),
+			want: NewLogger(Options{Handler: slog.NewJSONHandler(os.Stdout, nil)}),
+		},
+		{
+			name: "Nil slog logger",
+			l:    nil,
+			want: NewLogger(),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := FromSlog(tt.l)
+			if _, ok := got.(*logger); !ok {
+				t.Errorf("FromSlog() = %T, want %T", got, tt.want)
+			}
+
+			if reflect.TypeOf(got.Handler()) != reflect.TypeOf(tt.want.Handler()) {
+				t.Errorf("FromSlog().Handler() = %v, want %v", got.Handler(), tt.want.Handler())
+			}
+		})
+	}
+}
+
+func TestLogger_ToSlog(t *testing.T) {
+	tests := []struct {
+		name string
+		l    Logger
+	}{
+		{
+			name: "Logger",
+			l:    NewLogger(Options{Handler: slog.NewJSONHandler(os.Stdout, nil)}),
+		},
+		{
+			name: "Nil logger",
+			l:    &logger{nil},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.l != nil {
+				got := tt.l.ToSlog()
+				if got == nil {
+					t.Errorf("ToSlog() = %v, want %v", got, tt.l)
+				}
+			}
+		})
+	}
+}
+
 func TestMiddleware(t *testing.T) {
 	tests := []struct {
 		name        string

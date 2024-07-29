@@ -11,50 +11,50 @@ var _ Logger = (*logger)(nil)
 
 // Logger is a interface that provides logging methods.
 type Logger interface {
-	// Debug logs at LevelDebug.
+	// Debug logs at [LevelDebug].
 	Debug(msg string, args ...any)
-	// Debugf logs at LevelDebug.
-	// Arguments are handled in the manner of fmt.Printf.
+	// Debugf logs at [LevelDebug].
+	// Arguments are handled in the manner of [fmt.Printf].
 	Debugf(msg string, args ...any)
-	// DebugContext logs at LevelDebug with the given context.
+	// DebugContext logs at [LevelDebug] with the given context.
 	DebugContext(ctx context.Context, msg string, args ...any)
-	// Info logs at LevelInfo.
+	// Info logs at [LevelInfo].
 	Info(msg string, args ...any)
-	// Infof logs at LevelInfo.
-	// Arguments are handled in the manner of fmt.Printf.
+	// Infof logs at [LevelInfo].
+	// Arguments are handled in the manner of [fmt.Printf].
 	Infof(msg string, args ...any)
-	// InfoContext logs at LevelInfo with the given context.
+	// InfoContext logs at [LevelInfo] with the given context.
 	InfoContext(ctx context.Context, msg string, args ...any)
-	// Warn logs at LevelWarn.
+	// Warn logs at [LevelWarn].
 	Warn(msg string, args ...any)
-	// Warnf logs at LevelWarn.
-	// Arguments are handled in the manner of fmt.Printf.
+	// Warnf logs at [LevelWarn].
+	// Arguments are handled in the manner of [fmt.Printf].
 	Warnf(msg string, args ...any)
-	// WarnContext logs at LevelWarn with the given context.
+	// WarnContext logs at [LevelWarn] with the given context.
 	WarnContext(ctx context.Context, msg string, args ...any)
-	// Error logs at LevelError.
+	// Error logs at [LevelError].
 	Error(msg string, args ...any)
-	// Errorf logs at LevelError.
-	// Arguments are handled in the manner of fmt.Printf.
+	// Errorf logs at [LevelError].
+	// Arguments are handled in the manner of [fmt.Printf].
 	Errorf(msg string, args ...any)
-	// ErrorContext logs at LevelError with the given context.
+	// ErrorContext logs at [LevelError] with the given context.
 	ErrorContext(ctx context.Context, msg string, args ...any)
-	// Panic logs at LevelPanic and then panics with the given message.
+	// Panic logs at [LevelPanic] and then panics with the given message.
 	Panic(msg string, args ...any)
-	// Panicf logs at LevelPanic and then panics.
-	// Arguments are handled in the manner of fmt.Printf.
+	// Panicf logs at [LevelPanic] and then panics.
+	// Arguments are handled in the manner of [fmt.Printf].
 	Panicf(msg string, args ...any)
-	// PanicContext logs at LevelPanic with the given context and then panics with the given message.
+	// PanicContext logs at [LevelPanic] with the given context and then panics with the given message.
 	PanicContext(ctx context.Context, msg string, args ...any)
-	// Fatal logs at LevelFatal and then calls os.Exit(1).
+	// Fatal logs at [LevelFatal] and then calls [os.Exit](1).
 	Fatal(msg string, args ...any)
-	// Fatalf logs at LevelFatal and then calls os.Exit(1).
-	// Arguments are handled in the manner of fmt.Printf.
+	// Fatalf logs at [LevelFatal] and then calls [os.Exit](1).
+	// Arguments are handled in the manner of [fmt.Printf].
 	Fatalf(msg string, args ...any)
-	// FatalContext logs at LevelFatal with the given context and then calls os.Exit(1).
+	// FatalContext logs at [LevelFatal] with the given context and then calls [os.Exit](1).
 	FatalContext(ctx context.Context, msg string, args ...any)
 
-	// With calls Logger.With on the default logger.
+	// With returns a Logger that has the given attributes.
 	With(args ...any) Logger
 	// WithGroup returns a Logger that starts a group, if name is non-empty.
 	// The keys of all attributes added to the Logger will be qualified by the given
@@ -75,15 +75,15 @@ type Logger interface {
 	//     into an Attr.
 	//   - Otherwise, the argument is treated as a value with key "!BADKEY".
 	Log(ctx context.Context, level Level, msg string, args ...any)
-	// LogAttrs is a more efficient version of [Logger.Log] that accepts only Attrs.
+	// LogAttrs is a more efficient version of [Logger].Log that accepts only Attrs.
 	LogAttrs(ctx context.Context, level Level, msg string, attrs ...slog.Attr)
 
-	// Handler returns l's Handler.
+	// Handler returns the [slog.Handler] that the Logger emits log records to.
 	Handler() slog.Handler
-	// Enabled reports whether l emits log records at the given context and level.
+	// Enabled reports whether the [Logger] emits log records at the given context and level.
 	Enabled(ctx context.Context, level Level) bool
 
-	// ToSlog returns the underlying slog.Logger.
+	// ToSlog returns the underlying [slog.Logger].
 	ToSlog() *slog.Logger
 }
 
@@ -152,35 +152,22 @@ func (l *logger) LogAttrs(ctx context.Context, level Level, msg string, attrs ..
 }
 
 // logAttrs emits a log record with the current time and the given level, message, and attributes.
+// Must be called by a public log method to ensure that the caller is correct.
 func (l *logger) logAttrs(ctx context.Context, level Level, msg string, a ...any) {
 	if !l.Enabled(ctx, level) {
 		return
 	}
 
-	pc := getCaller(3)
-
-	r := slog.NewRecord(time.Now(), level, msg, pc)
+	// skip is the number of stack frames to skip to find the caller.
+	// We need to skip calling runtime.Callers, this function and the public log function.
+	const skip = 3
+	var pcs [1]uintptr
+	runtime.Callers(skip, pcs[:])
+	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
 	r.Add(a...)
 	if ctx == nil {
 		ctx = context.Background()
 	}
 
 	_ = l.Handler().Handle(ctx, r)
-}
-
-// getCaller returns the program counter of the caller at a given depth.
-// The depth is the number of stack frames to ascend, with 0 identifying the
-// getCaller function itself, 1 identifying the caller that invoked getCaller,
-// and so on.
-//
-// Example:
-//
-//	pc := getCaller(1) // Returns the program counter of the caller of the function that invoked getCaller.
-//	pc := getCaller(2) // Returns the program counter of the caller of the function that invoked the function that invoked getCaller.
-func getCaller(depth uint8) uintptr {
-	d := int(depth) + 1
-
-	var pcs [1]uintptr
-	runtime.Callers(d, pcs[:])
-	return pcs[0]
 }

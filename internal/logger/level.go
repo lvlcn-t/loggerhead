@@ -19,6 +19,7 @@ const (
 	LevelFatal  Level = slog.Level(16)
 )
 
+// LevelNames is a map of log levels to their respective names.
 var LevelNames = map[Level]string{
 	LevelTrace:  "TRACE",
 	LevelDebug:  "DEBUG",
@@ -28,6 +29,18 @@ var LevelNames = map[Level]string{
 	LevelError:  "ERROR",
 	LevelPanic:  "PANIC",
 	LevelFatal:  "FATAL",
+}
+
+// LevelColors is a map of log levels to their respective ansi color codes.
+var LevelColors = map[Level]string{
+	LevelTrace:  "240", // TRACE - Light Gray
+	LevelDebug:  "63",  // DEBUG - Blue
+	LevelInfo:   "86",  // INFO - Cyan
+	LevelNotice: "220", // NOTICE - Yellow
+	LevelWarn:   "192", // WARN - Orange
+	LevelError:  "204", // ERROR - Red
+	LevelPanic:  "134", // PANIC - Purple
+	LevelFatal:  "160", // FATAL - Dark Red
 }
 
 // getLevel returns the integer value of the given level string.

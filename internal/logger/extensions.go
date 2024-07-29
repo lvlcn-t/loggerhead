@@ -50,21 +50,24 @@ func (l *logger) PanicContext(ctx context.Context, msg string, args ...any) {
 	panic(msg)
 }
 
+// exit is a variable for [os.Exit].
+var exit = os.Exit
+
 // Fatal logs at [LevelFatal] and then calls os.Exit(1).
 func (l *logger) Fatal(msg string, args ...any) {
 	l.logAttrs(context.Background(), LevelFatal, msg, args...)
-	os.Exit(1)
+	exit(1)
 }
 
 // Fatalf logs at LevelFatal and then calls os.Exit(1).
 // Arguments are handled in the manner of fmt.Printf.
 func (l *logger) Fatalf(msg string, args ...any) {
 	l.logAttrs(context.Background(), LevelFatal, fmt.Sprintf(msg, args...))
-	os.Exit(1)
+	exit(1)
 }
 
 // FatalContext logs at [LevelFatal] and then calls os.Exit(1).
 func (l *logger) FatalContext(ctx context.Context, msg string, args ...any) {
 	l.logAttrs(ctx, LevelFatal, msg, args...)
-	os.Exit(1)
+	exit(1)
 }

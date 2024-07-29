@@ -157,7 +157,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 	}
 }
 
-func TestLogger_PanicLevel(t *testing.T) {
+func TestLogger_Panic_FatalLevels(t *testing.T) { //nolint:gocyclo // Either higher complexity or code duplication
 	tests := []struct {
 		name    string
 		attrs   []any
@@ -220,10 +220,71 @@ func TestLogger_PanicLevel(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "fatal level",
+			logFunc: func(l Logger, msg string, args ...any) {
+				l.Fatal(msg, args...)
+			},
+			handler: test.MockHandler{
+				HandleFunc: func(ctx context.Context, r slog.Record) error {
+					level := LevelFatal
+					if r.Level != level {
+						t.Errorf("Expected level to be [%s], got [%s]", getLevelString(level), r.Level)
+					}
+					if r.NumAttrs() != 0 {
+						t.Errorf("Expected 0 attributes, got %d", r.NumAttrs())
+					}
+					return nil
+				},
+			},
+		},
+		{
+			name: "fatalf level",
+			logFunc: func(l Logger, msg string, args ...any) {
+				l.Fatalf(msg, args...)
+			},
+			handler: test.MockHandler{
+				HandleFunc: func(ctx context.Context, r slog.Record) error {
+					level := LevelFatal
+					if r.Level != level {
+						t.Errorf("Expected level to be [%s], got [%s]", getLevelString(level), r.Level)
+					}
+					if r.NumAttrs() != 0 {
+						t.Errorf("Expected 0 attributes, got %d", r.NumAttrs())
+					}
+					return nil
+				},
+			},
+		},
+		{
+			name: "fatal context level",
+			logFunc: func(l Logger, msg string, args ...any) {
+				l.FatalContext(context.Background(), msg, args...)
+			},
+			handler: test.MockHandler{
+				HandleFunc: func(ctx context.Context, r slog.Record) error {
+					level := LevelFatal
+					if r.Level != level {
+						t.Errorf("Expected level to be [%s], got [%s]", getLevelString(level), r.Level)
+					}
+					if r.NumAttrs() != 0 {
+						t.Errorf("Expected 0 attributes, got %d", r.NumAttrs())
+					}
+					return nil
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			exit = func(code int) {
+				if code != 1 {
+					t.Errorf("Expected exit code 1, got %d", code)
+				}
+				panic("os.Exit(1)")
+			}
+
 			l := NewLogger(Options{Handler: tt.handler})
 			defer func() {
 				if r := recover(); r == nil {
