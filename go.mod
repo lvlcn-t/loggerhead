@@ -1,6 +1,6 @@
 module github.com/lvlcn-t/loggerhead
 
-go 1.22
+go 1.23
 
 require (
 	github.com/charmbracelet/lipgloss v0.12.1
