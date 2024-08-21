@@ -3,7 +3,7 @@ module github.com/lvlcn-t/loggerhead
 go 1.23
 
 require (
-	github.com/charmbracelet/lipgloss v0.12.1
+	github.com/charmbracelet/lipgloss v0.13.0
 	github.com/charmbracelet/log v0.4.1-0.20240719134918-958009cd3692
 	github.com/remychantenay/slog-otel v1.3.2
 	go.opentelemetry.io/otel v1.28.0
