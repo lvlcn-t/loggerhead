@@ -11,6 +11,13 @@ var _ Logger = (*logger)(nil)
 
 // Logger is a interface that provides logging methods.
 type Logger interface {
+	// Trace logs at [LevelTrace].
+	Trace(msg string, args ...any)
+	// Tracef logs at [LevelTrace].
+	// Arguments are handled in the manner of [fmt.Printf].
+	Tracef(msg string, args ...any)
+	// TraceContext logs at [LevelTrace] with the given context.
+	TraceContext(ctx context.Context, msg string, args ...any)
 	// Debug logs at [LevelDebug].
 	Debug(msg string, args ...any)
 	// Debugf logs at [LevelDebug].
@@ -25,6 +32,13 @@ type Logger interface {
 	Infof(msg string, args ...any)
 	// InfoContext logs at [LevelInfo] with the given context.
 	InfoContext(ctx context.Context, msg string, args ...any)
+	// Notice logs at [LevelNotice].
+	Notice(msg string, args ...any)
+	// Noticef logs at [LevelNotice].
+	// Arguments are handled in the manner of [fmt.Printf].
+	Noticef(msg string, args ...any)
+	// NoticeContext logs at [LevelNotice] with the given context.
+	NoticeContext(ctx context.Context, msg string, args ...any)
 	// Warn logs at [LevelWarn].
 	Warn(msg string, args ...any)
 	// Warnf logs at [LevelWarn].
@@ -162,7 +176,7 @@ func (l *logger) logAttrs(ctx context.Context, level Level, msg string, a ...any
 	// We need to skip calling runtime.Callers, this function and the public log function.
 	const skip = 3
 	var pcs [1]uintptr
-	runtime.Callers(skip, pcs[:])
+	_ = runtime.Callers(skip, pcs[:])
 	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
 	r.Add(a...)
 	if ctx == nil {

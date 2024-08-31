@@ -157,13 +157,84 @@ func TestLogger_LevelExtensions(t *testing.T) {
 	}
 }
 
-func TestLogger_Panic_FatalLevels(t *testing.T) { //nolint:gocyclo // Either higher complexity or code duplication
+func TestLogger_CustomLevels(t *testing.T) { //nolint:gocyclo // Either higher complexity or code duplication
 	tests := []struct {
-		name    string
-		attrs   []any
-		logFunc logFunc
-		handler test.MockHandler
+		name      string
+		attrs     []any
+		logFunc   logFunc
+		handler   test.MockHandler
+		wantPanic bool
 	}{
+		{
+			name:  "trace level",
+			attrs: []any{"key", "value"},
+			logFunc: func(l Logger, msg string, args ...any) {
+				l.Trace(msg, args...)
+			},
+			handler: test.MockHandler{
+				HandleFunc: func(ctx context.Context, r slog.Record) error {
+					return assertRecordLevel(t, &r, LevelTrace, true)
+				},
+			},
+		},
+		{
+			name: "tracef level",
+			logFunc: func(l Logger, msg string, args ...any) {
+				l.Tracef(msg, args...)
+			},
+			handler: test.MockHandler{
+				HandleFunc: func(ctx context.Context, r slog.Record) error {
+					return assertRecordLevel(t, &r, LevelTrace, false)
+				},
+			},
+		},
+		{
+			name:  "trace context level",
+			attrs: []any{"key", "value"},
+			logFunc: func(l Logger, msg string, args ...any) {
+				l.TraceContext(context.Background(), msg, args...)
+			},
+			handler: test.MockHandler{
+				HandleFunc: func(ctx context.Context, r slog.Record) error {
+					return assertRecordLevel(t, &r, LevelTrace, true)
+				},
+			},
+		},
+		{
+			name:  "notice level",
+			attrs: []any{"key", "value"},
+			logFunc: func(l Logger, msg string, args ...any) {
+				l.Notice(msg, args...)
+			},
+			handler: test.MockHandler{
+				HandleFunc: func(ctx context.Context, r slog.Record) error {
+					return assertRecordLevel(t, &r, LevelNotice, true)
+				},
+			},
+		},
+		{
+			name: "noticef level",
+			logFunc: func(l Logger, msg string, args ...any) {
+				l.Noticef(msg, args...)
+			},
+			handler: test.MockHandler{
+				HandleFunc: func(ctx context.Context, r slog.Record) error {
+					return assertRecordLevel(t, &r, LevelNotice, false)
+				},
+			},
+		},
+		{
+			name:  "notice context level",
+			attrs: []any{"key", "value"},
+			logFunc: func(l Logger, msg string, args ...any) {
+				l.NoticeContext(context.Background(), msg, args...)
+			},
+			handler: test.MockHandler{
+				HandleFunc: func(ctx context.Context, r slog.Record) error {
+					return assertRecordLevel(t, &r, LevelNotice, true)
+				},
+			},
+		},
 		{
 			name:  "panic level",
 			attrs: []any{"key", "value"},
@@ -172,16 +243,10 @@ func TestLogger_Panic_FatalLevels(t *testing.T) { //nolint:gocyclo // Either hig
 			},
 			handler: test.MockHandler{
 				HandleFunc: func(ctx context.Context, r slog.Record) error {
-					level := LevelPanic
-					if r.Level != level {
-						t.Errorf("Expected level to be [%s], got [%s]", getLevelString(level), r.Level)
-					}
-					if r.NumAttrs() == 0 {
-						t.Errorf("Expected  attributes, got %d", r.NumAttrs())
-					}
-					return nil
+					return assertRecordLevel(t, &r, LevelPanic, true)
 				},
 			},
+			wantPanic: true,
 		},
 		{
 			name: "panicf level",
@@ -190,16 +255,10 @@ func TestLogger_Panic_FatalLevels(t *testing.T) { //nolint:gocyclo // Either hig
 			},
 			handler: test.MockHandler{
 				HandleFunc: func(ctx context.Context, r slog.Record) error {
-					level := LevelPanic
-					if r.Level != level {
-						t.Errorf("Expected level to be [%s], got [%s]", getLevelString(level), r.Level)
-					}
-					if r.NumAttrs() != 0 {
-						t.Errorf("Expected 0 attributes, got %d", r.NumAttrs())
-					}
-					return nil
+					return assertRecordLevel(t, &r, LevelPanic, false)
 				},
 			},
+			wantPanic: true,
 		},
 		{
 			name:  "panic context level",
@@ -209,34 +268,23 @@ func TestLogger_Panic_FatalLevels(t *testing.T) { //nolint:gocyclo // Either hig
 			},
 			handler: test.MockHandler{
 				HandleFunc: func(ctx context.Context, r slog.Record) error {
-					level := LevelPanic
-					if r.Level != level {
-						t.Errorf("Expected level to be [%s], got [%s]", getLevelString(level), r.Level)
-					}
-					if r.NumAttrs() == 0 {
-						t.Errorf("Expected attributes, got %d", r.NumAttrs())
-					}
-					return nil
+					return assertRecordLevel(t, &r, LevelPanic, true)
 				},
 			},
+			wantPanic: true,
 		},
 		{
-			name: "fatal level",
+			name:  "fatal level",
+			attrs: []any{"key", "value"},
 			logFunc: func(l Logger, msg string, args ...any) {
 				l.Fatal(msg, args...)
 			},
 			handler: test.MockHandler{
 				HandleFunc: func(ctx context.Context, r slog.Record) error {
-					level := LevelFatal
-					if r.Level != level {
-						t.Errorf("Expected level to be [%s], got [%s]", getLevelString(level), r.Level)
-					}
-					if r.NumAttrs() != 0 {
-						t.Errorf("Expected 0 attributes, got %d", r.NumAttrs())
-					}
-					return nil
+					return assertRecordLevel(t, &r, LevelFatal, true)
 				},
 			},
+			wantPanic: true,
 		},
 		{
 			name: "fatalf level",
@@ -245,34 +293,23 @@ func TestLogger_Panic_FatalLevels(t *testing.T) { //nolint:gocyclo // Either hig
 			},
 			handler: test.MockHandler{
 				HandleFunc: func(ctx context.Context, r slog.Record) error {
-					level := LevelFatal
-					if r.Level != level {
-						t.Errorf("Expected level to be [%s], got [%s]", getLevelString(level), r.Level)
-					}
-					if r.NumAttrs() != 0 {
-						t.Errorf("Expected 0 attributes, got %d", r.NumAttrs())
-					}
-					return nil
+					return assertRecordLevel(t, &r, LevelFatal, false)
 				},
 			},
+			wantPanic: true,
 		},
 		{
-			name: "fatal context level",
+			name:  "fatal context level",
+			attrs: []any{"key", "value"},
 			logFunc: func(l Logger, msg string, args ...any) {
 				l.FatalContext(context.Background(), msg, args...)
 			},
 			handler: test.MockHandler{
 				HandleFunc: func(ctx context.Context, r slog.Record) error {
-					level := LevelFatal
-					if r.Level != level {
-						t.Errorf("Expected level to be [%s], got [%s]", getLevelString(level), r.Level)
-					}
-					if r.NumAttrs() != 0 {
-						t.Errorf("Expected 0 attributes, got %d", r.NumAttrs())
-					}
-					return nil
+					return assertRecordLevel(t, &r, LevelFatal, true)
 				},
 			},
+			wantPanic: true,
 		},
 	}
 
@@ -286,12 +323,28 @@ func TestLogger_Panic_FatalLevels(t *testing.T) { //nolint:gocyclo // Either hig
 			}
 
 			l := NewLogger(Options{Handler: tt.handler})
-			defer func() {
-				if r := recover(); r == nil {
-					t.Error("Expected panic")
-				}
-			}()
+			if tt.wantPanic {
+				defer func() {
+					if r := recover(); r == nil {
+						t.Error("Expected panic")
+					}
+				}()
+			}
 			tt.logFunc(l, "test", tt.attrs...)
 		})
 	}
+}
+
+func assertRecordLevel(t *testing.T, r *slog.Record, level Level, wantAttrs bool) error {
+	t.Helper()
+	if r.Level != level {
+		t.Errorf("Expected level to be [%s], got [%s]", getLevelString(level), r.Level)
+	}
+	if !wantAttrs && r.NumAttrs() != 0 {
+		t.Errorf("Expected 0 attributes, got %d", r.NumAttrs())
+	}
+	if wantAttrs && r.NumAttrs() == 0 {
+		t.Errorf("Expected attributes, got 0")
+	}
+	return nil
 }

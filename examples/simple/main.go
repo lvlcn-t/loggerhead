@@ -1,31 +1,25 @@
 package main
 
 import (
-	"os"
-
 	"github.com/lvlcn-t/loggerhead/logger"
 )
 
 func main() {
-	err := os.Setenv("LOG_FORMAT", "text")
-	if err != nil {
-		panic(err)
-	}
+	// Create a new logger.
+	log := logger.NewLogger(logger.Options{
+		Level:  "trace",
+		Format: "text",
+	})
 
-	log := logger.NewLogger()
-
-	log.Debug("This is a debug message!")
+	// Log some messages.
+	log.Trace("This is a trace message!")
 	log.Debugf("This is a %s message!", "debug")
-
 	log.Info("Hello, world!")
-	log.Infof("Hello, %s!", "world")
-
+	log.Noticef("This is a %s message!", "notice")
 	log.Warn("This is a warning!")
-	log.Warnf("This is a %s!", "warning")
-
-	log.Error("This is an error!")
 	log.Errorf("This is an %s!", "error")
 
+	// Panic.
 	func() {
 		defer func() {
 			if r := recover(); r != nil {
