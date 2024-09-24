@@ -133,7 +133,7 @@ func TestNewContextWithLogger(t *testing.T) {
 			ctx, cancel := NewContextWithLogger(tt.parentCtx)
 			defer cancel()
 
-			log := ctx.Value(logger{})
+			log := ctx.Value(ctxKey{})
 			if _, ok := log.(Logger); !ok {
 				t.Errorf("Context does not contain Logger, got %T", log)
 			}
@@ -259,7 +259,7 @@ func TestMiddleware(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			middleware := Middleware(tt.parentCtx)
 			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				_, ok := r.Context().Value(logger{}).(Logger)
+				_, ok := r.Context().Value(ctxKey{}).(Logger)
 				if tt.expectInCtx != ok {
 					t.Errorf("Middleware() did not inject logger correctly, got %v, want %v", ok, tt.expectInCtx)
 				}

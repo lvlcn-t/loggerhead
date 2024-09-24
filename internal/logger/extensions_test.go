@@ -157,7 +157,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 	}
 }
 
-func TestLogger_CustomLevels(t *testing.T) { //nolint:gocyclo // Either higher complexity or code duplication
+func TestLogger_CustomLevels(t *testing.T) {
 	tests := []struct {
 		name      string
 		attrs     []any

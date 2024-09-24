@@ -78,6 +78,10 @@ linters-settings:
         disabled: true
       - name: unused-parameter
 
+  gosec:
+    excludes:
+      - "G115" # Excluded per default https://github.com/golangci/golangci-lint/pull/4941
+
 linters:
   disable-all: true
   enable:
@@ -86,7 +90,7 @@ linters:
     - dogsled
     - dupl
     - errcheck
-    - exportloopref
+    - copyloopvar
     - funlen
     - gocheckcompilerdirectives
     - gochecknoinits

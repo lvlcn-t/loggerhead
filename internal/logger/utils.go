@@ -51,10 +51,13 @@ func NewContextWithLogger(ctx context.Context) (context.Context, context.CancelF
 	return IntoContext(c, FromContext(ctx)), cancel
 }
 
+// ctxKey is the key used to store the logger in the context.
+type ctxKey struct{}
+
 // IntoContext embeds the provided slog.Logger into the given context and returns the modified context.
 // This function is used for passing loggers through context, allowing for context-aware logging.
 func IntoContext(ctx context.Context, log Logger) context.Context {
-	return context.WithValue(ctx, logger{}, log)
+	return context.WithValue(ctx, ctxKey{}, log)
 }
 
 // FromContext extracts the slog.Logger from the provided context.
@@ -62,7 +65,7 @@ func IntoContext(ctx context.Context, log Logger) context.Context {
 // This function is useful for retrieving loggers from context in different parts of an application.
 func FromContext(ctx context.Context) Logger {
 	if ctx != nil {
-		if logger, ok := ctx.Value(logger{}).(Logger); ok {
+		if logger, ok := ctx.Value(ctxKey{}).(Logger); ok {
 			return logger
 		}
 	}
