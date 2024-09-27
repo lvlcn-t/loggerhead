@@ -23,6 +23,6 @@ repos:
         args: [--config, .golangci.yaml, --, --fix]
 
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.2
+    rev: v8.19.3
     hooks:
       - id: gitleaks
