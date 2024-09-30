@@ -8,9 +8,9 @@ import (
 	"github.com/lvlcn-t/loggerhead/internal/logger"
 )
 
-// Logger is the interface for the logger.
+// Provider is the interface for the logger.
 // Its build on top of slog.Logger and extends it with additional logging methods.
-type Logger = logger.Logger
+type Provider = logger.Provider
 
 // Options is the optional configuration for the logger.
 type Options = logger.Options
@@ -25,7 +25,7 @@ type Options = logger.Options
 //	opts := logger.Options{Level: "INFO", Format: "JSON", OpenTelemetry: true}
 //	log := logger.NewLogger(opts)
 //	log.Info("Hello, world!")
-func NewLogger(o ...logger.Options) logger.Logger {
+func NewLogger(o ...logger.Options) logger.Provider {
 	return logger.NewLogger(o...)
 }
 
@@ -36,7 +36,7 @@ func NewLogger(o ...logger.Options) logger.Logger {
 //
 //	opts := logger.Options{Level: "DEBUG", Format: "TEXT"}
 //	log := logger.NewNamedLogger("myServiceLogger", opts)
-func NewNamedLogger(name string, o ...logger.Options) logger.Logger {
+func NewNamedLogger(name string, o ...logger.Options) logger.Provider {
 	return logger.NewNamedLogger(name, o...)
 }
 
@@ -50,16 +50,16 @@ func NewContextWithLogger(parent context.Context) (context.Context, context.Canc
 	return logger.NewContextWithLogger(parent)
 }
 
-// IntoContext embeds the provided [logger.Logger] into the given context and returns the modified context.
+// IntoContext embeds the provided [logger.Provider] into the given context and returns the modified context.
 // This function is used for passing loggers through context, allowing for context-aware logging.
-func IntoContext(ctx context.Context, log logger.Logger) context.Context {
+func IntoContext(ctx context.Context, log logger.Provider) context.Context {
 	return logger.IntoContext(ctx, log)
 }
 
-// FromContext extracts the [logger.Logger] from the provided context.
+// FromContext extracts the [logger.Provider] from the provided context.
 // If the context does not have a logger, it returns a new logger with the default configuration.
 // This function is useful for retrieving loggers from context in different parts of an application.
-func FromContext(ctx context.Context) logger.Logger {
+func FromContext(ctx context.Context) logger.Provider {
 	return logger.FromContext(ctx)
 }
 
@@ -69,6 +69,6 @@ func Middleware(ctx context.Context) func(http.Handler) http.Handler {
 }
 
 // FromSlog returns a new [Logger] instance from the provided [slog.Logger].
-func FromSlog(l *slog.Logger) logger.Logger {
+func FromSlog(l *slog.Logger) logger.Provider {
 	return logger.FromSlog(l)
 }

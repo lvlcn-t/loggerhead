@@ -23,7 +23,7 @@ import (
 //	opts := logger.Options{Level: "INFO", Format: "JSON", OpenTelemetry: true}
 //	log := logger.NewLogger(opts)
 //	log.Info("Hello, world!")
-func NewLogger(o ...Options) Logger {
+func NewLogger(o ...Options) Provider {
 	return &logger{
 		Logger: slog.New(newHandler(o...)),
 	}
@@ -36,7 +36,7 @@ func NewLogger(o ...Options) Logger {
 //
 //	opts := logger.Options{Level: "DEBUG", Format: "TEXT"}
 //	log := logger.NewNamedLogger("myServiceLogger", opts)
-func NewNamedLogger(name string, o ...Options) Logger {
+func NewNamedLogger(name string, o ...Options) Provider {
 	return &logger{
 		Logger: slog.New(newHandler(o...)).With("name", name),
 	}
@@ -56,16 +56,16 @@ type ctxKey struct{}
 
 // IntoContext embeds the provided slog.Logger into the given context and returns the modified context.
 // This function is used for passing loggers through context, allowing for context-aware logging.
-func IntoContext(ctx context.Context, log Logger) context.Context {
+func IntoContext(ctx context.Context, log Provider) context.Context {
 	return context.WithValue(ctx, ctxKey{}, log)
 }
 
 // FromContext extracts the slog.Logger from the provided context.
 // If the context does not have a logger, it returns a new logger with the default configuration.
 // This function is useful for retrieving loggers from context in different parts of an application.
-func FromContext(ctx context.Context) Logger {
+func FromContext(ctx context.Context) Provider {
 	if ctx != nil {
-		if logger, ok := ctx.Value(ctxKey{}).(Logger); ok {
+		if logger, ok := ctx.Value(ctxKey{}).(Provider); ok {
 			return logger
 		}
 	}
@@ -93,7 +93,7 @@ func (l *logger) ToSlog() *slog.Logger {
 }
 
 // FromSlog returns a new Logger instance based on the provided slog.Logger.
-func FromSlog(l *slog.Logger) Logger {
+func FromSlog(l *slog.Logger) Provider {
 	if l == nil {
 		return NewLogger()
 	}

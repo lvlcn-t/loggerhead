@@ -134,7 +134,7 @@ func TestNewContextWithLogger(t *testing.T) {
 			defer cancel()
 
 			log := ctx.Value(ctxKey{})
-			if _, ok := log.(Logger); !ok {
+			if _, ok := log.(Provider); !ok {
 				t.Errorf("Context does not contain Logger, got %T", log)
 			}
 			if ctx == tt.parentCtx {
@@ -148,7 +148,7 @@ func TestFromContext(t *testing.T) {
 	tests := []struct {
 		name string
 		ctx  context.Context
-		want Logger
+		want Provider
 	}{
 		{
 			name: "Context with logger",
@@ -182,7 +182,7 @@ func TestFromSlog(t *testing.T) {
 	tests := []struct {
 		name string
 		l    *slog.Logger
-		want Logger
+		want Provider
 	}{
 		{
 			name: "Slog logger",
@@ -213,7 +213,7 @@ func TestFromSlog(t *testing.T) {
 func TestLogger_ToSlog(t *testing.T) {
 	tests := []struct {
 		name string
-		l    Logger
+		l    Provider
 	}{
 		{
 			name: "Logger",
@@ -259,7 +259,7 @@ func TestMiddleware(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			middleware := Middleware(tt.parentCtx)
 			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				_, ok := r.Context().Value(ctxKey{}).(Logger)
+				_, ok := r.Context().Value(ctxKey{}).(Provider)
 				if tt.expectInCtx != ok {
 					t.Errorf("Middleware() did not inject logger correctly, got %v, want %v", ok, tt.expectInCtx)
 				}

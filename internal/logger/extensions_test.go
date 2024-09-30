@@ -8,7 +8,7 @@ import (
 	"github.com/lvlcn-t/loggerhead/internal/logger/test"
 )
 
-type logFunc func(l Logger, msg string, args ...any)
+type logFunc func(l Provider, msg string, args ...any)
 
 func TestLogger_LevelExtensions(t *testing.T) {
 	tests := []struct {
@@ -18,7 +18,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 	}{
 		{
 			name: "debug level disabled",
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.Debugf(msg, args...)
 			},
 			handler: test.MockHandler{
@@ -33,7 +33,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 		},
 		{
 			name: "debug level enabled",
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.Debugf(msg, args...)
 			},
 			handler: test.MockHandler{
@@ -51,7 +51,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 		},
 		{
 			name: "info level disabled",
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.Infof(msg, args...)
 			},
 			handler: test.MockHandler{
@@ -66,7 +66,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 		},
 		{
 			name: "info level enabled",
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.Infof(msg, args...)
 			},
 			handler: test.MockHandler{
@@ -84,7 +84,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 		},
 		{
 			name: "warn level disabled",
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.Warnf(msg, args...)
 			},
 			handler: test.MockHandler{
@@ -99,7 +99,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 		},
 		{
 			name: "warn level enabled",
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.Warnf(msg, args...)
 			},
 			handler: test.MockHandler{
@@ -117,7 +117,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 		},
 		{
 			name: "error level disabled",
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.Errorf(msg, args...)
 			},
 			handler: test.MockHandler{
@@ -132,7 +132,7 @@ func TestLogger_LevelExtensions(t *testing.T) {
 		},
 		{
 			name: "error level enabled",
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.Errorf(msg, args...)
 			},
 			handler: test.MockHandler{
@@ -168,7 +168,7 @@ func TestLogger_CustomLevels(t *testing.T) {
 		{
 			name:  "trace level",
 			attrs: []any{"key", "value"},
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.Trace(msg, args...)
 			},
 			handler: test.MockHandler{
@@ -179,7 +179,7 @@ func TestLogger_CustomLevels(t *testing.T) {
 		},
 		{
 			name: "tracef level",
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.Tracef(msg, args...)
 			},
 			handler: test.MockHandler{
@@ -191,7 +191,7 @@ func TestLogger_CustomLevels(t *testing.T) {
 		{
 			name:  "trace context level",
 			attrs: []any{"key", "value"},
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.TraceContext(context.Background(), msg, args...)
 			},
 			handler: test.MockHandler{
@@ -203,7 +203,7 @@ func TestLogger_CustomLevels(t *testing.T) {
 		{
 			name:  "notice level",
 			attrs: []any{"key", "value"},
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.Notice(msg, args...)
 			},
 			handler: test.MockHandler{
@@ -214,7 +214,7 @@ func TestLogger_CustomLevels(t *testing.T) {
 		},
 		{
 			name: "noticef level",
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.Noticef(msg, args...)
 			},
 			handler: test.MockHandler{
@@ -226,7 +226,7 @@ func TestLogger_CustomLevels(t *testing.T) {
 		{
 			name:  "notice context level",
 			attrs: []any{"key", "value"},
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.NoticeContext(context.Background(), msg, args...)
 			},
 			handler: test.MockHandler{
@@ -238,7 +238,7 @@ func TestLogger_CustomLevels(t *testing.T) {
 		{
 			name:  "panic level",
 			attrs: []any{"key", "value"},
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.Panic(msg, args...)
 			},
 			handler: test.MockHandler{
@@ -250,7 +250,7 @@ func TestLogger_CustomLevels(t *testing.T) {
 		},
 		{
 			name: "panicf level",
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.Panicf(msg, args...)
 			},
 			handler: test.MockHandler{
@@ -263,7 +263,7 @@ func TestLogger_CustomLevels(t *testing.T) {
 		{
 			name:  "panic context level",
 			attrs: []any{"key", "value"},
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.PanicContext(context.Background(), msg, args...)
 			},
 			handler: test.MockHandler{
@@ -276,7 +276,7 @@ func TestLogger_CustomLevels(t *testing.T) {
 		{
 			name:  "fatal level",
 			attrs: []any{"key", "value"},
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.Fatal(msg, args...)
 			},
 			handler: test.MockHandler{
@@ -288,7 +288,7 @@ func TestLogger_CustomLevels(t *testing.T) {
 		},
 		{
 			name: "fatalf level",
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.Fatalf(msg, args...)
 			},
 			handler: test.MockHandler{
@@ -301,7 +301,7 @@ func TestLogger_CustomLevels(t *testing.T) {
 		{
 			name:  "fatal context level",
 			attrs: []any{"key", "value"},
-			logFunc: func(l Logger, msg string, args ...any) {
+			logFunc: func(l Provider, msg string, args ...any) {
 				l.FatalContext(context.Background(), msg, args...)
 			},
 			handler: test.MockHandler{

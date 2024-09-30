@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-var _ Logger = (*logger)(nil)
+var _ Provider = (*logger)(nil)
 
-// Logger is a interface that provides logging methods.
-type Logger interface {
+// Provider is a interface that provides logging methods.
+type Provider interface {
 	// Trace logs at [LevelTrace].
 	Trace(msg string, args ...any)
 	// Tracef logs at [LevelTrace].
@@ -69,14 +69,14 @@ type Logger interface {
 	FatalContext(ctx context.Context, msg string, args ...any)
 
 	// With returns a Logger that has the given attributes.
-	With(args ...any) Logger
+	With(args ...any) Provider
 	// WithGroup returns a Logger that starts a group, if name is non-empty.
 	// The keys of all attributes added to the Logger will be qualified by the given
 	// name. (How that qualification happens depends on the [Handler.WithGroup]
 	// method of the Logger's Handler.)
 	//
 	// If name is empty, WithGroup returns the receiver.
-	WithGroup(name string) Logger
+	WithGroup(name string) Provider
 
 	// Log emits a log record with the current time and the given level and message.
 	// The Record's Attrs consist of the Logger's attributes followed by
@@ -146,12 +146,12 @@ func (l *logger) ErrorContext(ctx context.Context, msg string, a ...any) {
 }
 
 // With calls Logger.With on the default logger.
-func (l *logger) With(a ...any) Logger {
+func (l *logger) With(a ...any) Provider {
 	return &logger{Logger: l.Logger.With(a...)}
 }
 
 // WithGroup returns a Logger that starts a group, if name is non-empty.
-func (l *logger) WithGroup(name string) Logger {
+func (l *logger) WithGroup(name string) Provider {
 	return &logger{Logger: l.Logger.WithGroup(name)}
 }
 
