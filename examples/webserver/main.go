@@ -17,13 +17,13 @@ func main() {
 	}
 
 	var handler http.HandlerFunc = func(w http.ResponseWriter, r *http.Request) {
-		log := logger.FromContext(r.Context())
-		log.Info("Hello, world!")
+		l := logger.FromContext(r.Context())
+		l.Info("Hello, world!")
 
 		w.WriteHeader(http.StatusOK)
 		_, err := w.Write([]byte("Hello, world!"))
 		if err != nil {
-			log.Error("Failed to write response", "error", err)
+			l.Error("Failed to write response", "error", err)
 		}
 	}
 
