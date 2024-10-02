@@ -8,6 +8,11 @@ import (
 	"github.com/lvlcn-t/loggerhead/internal/logger"
 )
 
+// Logger is an alias for the [Provider] interface.
+// It is defined for backward compatibility with previous versions of the logger package.
+// FIXME: Will be removed with v0.4.0.
+type Logger = Provider
+
 // Provider is the interface for the logger.
 // Its build on top of slog.Logger and extends it with additional logging methods.
 type Provider = logger.Provider
