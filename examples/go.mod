@@ -2,6 +2,8 @@ module github.com/lvlcn-t/loggerhead/examples
 
 go 1.23
 
+toolchain go1.23.2
+
 replace github.com/lvlcn-t/loggerhead => ../
 
 require (
@@ -14,8 +16,8 @@ require (
 
 require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/charmbracelet/lipgloss v0.13.0 // indirect
-	github.com/charmbracelet/x/ansi v0.3.2 // indirect
+	github.com/charmbracelet/lipgloss v1.0.0 // indirect
+	github.com/charmbracelet/x/ansi v0.4.2 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
