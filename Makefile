@@ -21,3 +21,7 @@ simple-example:
 webserver-example:
 	@echo "Open http://localhost:8080 in your browser to see the example.\nPress Ctrl+C to stop the server."
 	@go run examples/webserver/main.go
+
+.PHONY: lint
+lint:
+	@pre-commit run -a
