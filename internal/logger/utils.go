@@ -157,7 +157,7 @@ func newCustomStyles() *clog.Styles {
 // replaceAttr is the replacement function for slog.HandlerOptions.
 func replaceAttr(_ []string, a slog.Attr) slog.Attr {
 	if a.Key == slog.LevelKey {
-		lev := a.Value.Any().(slog.Level)
+		lev := Level(a.Value.Any().(slog.Level))
 		a.Value = slog.StringValue(lev.String())
 	}
 	return a

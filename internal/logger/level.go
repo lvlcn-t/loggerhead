@@ -69,5 +69,5 @@ func (l Level) String() string {
 	if s, ok := LevelNames[l]; ok {
 		return s
 	}
-	return "UNKNOWN"
+	return slog.Level(l).String()
 }
