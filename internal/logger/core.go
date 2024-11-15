@@ -89,12 +89,12 @@ type Provider interface {
 	//     into an Attr.
 	//   - Otherwise, the argument is treated as a value with key "!BADKEY".
 	Log(ctx context.Context, level Level, msg string, args ...any)
-	// LogAttrs is a more efficient version of [Logger].Log that accepts only Attrs.
+	// LogAttrs is a more efficient version of [Provider.Log] that accepts only Attrs.
 	LogAttrs(ctx context.Context, level Level, msg string, attrs ...slog.Attr)
 
 	// Handler returns the [slog.Handler] that the Logger emits log records to.
 	Handler() slog.Handler
-	// Enabled reports whether the [Logger] emits log records at the given context and level.
+	// Enabled reports whether the [Provider] emits log records at the given context and level.
 	Enabled(ctx context.Context, level Level) bool
 
 	// ToSlog returns the underlying [slog.Logger].
@@ -157,12 +157,17 @@ func (l *logger) WithGroup(name string) Provider {
 
 // Log emits a log record with the current time and the given level and message.
 func (l *logger) Log(ctx context.Context, level Level, msg string, a ...any) {
-	l.Logger.Log(ctx, level, msg, a...)
+	l.Logger.Log(ctx, slog.Level(level), msg, a...)
 }
 
-// Logf emits a log record with the current time and the given level, message, and attributes.
+// LogAttrs is a more efficient version of [Provider.Log] that accepts only Attrs.
 func (l *logger) LogAttrs(ctx context.Context, level Level, msg string, attrs ...slog.Attr) {
-	l.Logger.LogAttrs(ctx, level, msg, attrs...)
+	l.Logger.LogAttrs(ctx, slog.Level(level), msg, attrs...)
+}
+
+// Enabled reports whether the [Provider] emits log records at the given context and level.
+func (l *logger) Enabled(ctx context.Context, level Level) bool {
+	return l.Logger.Enabled(ctx, slog.Level(level))
 }
 
 // logAttrs emits a log record with the current time and the given level, message, and attributes.
@@ -177,7 +182,7 @@ func (l *logger) logAttrs(ctx context.Context, level Level, msg string, a ...any
 	const skip = 3
 	var pcs [1]uintptr
 	_ = runtime.Callers(skip, pcs[:])
-	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
+	r := slog.NewRecord(time.Now(), slog.Level(level), msg, pcs[0])
 	r.Add(a...)
 	if ctx == nil {
 		ctx = context.Background()

@@ -39,8 +39,8 @@ func TestLogger_LevelExtensions(t *testing.T) {
 			handler: test.MockHandler{
 				HandleFunc: func(ctx context.Context, r slog.Record) error {
 					level := LevelDebug
-					if r.Level != level {
-						t.Errorf("Expected level to be [%s], got [%s]", getLevelString(level), r.Level)
+					if r.Level != slog.Level(level) {
+						t.Errorf("Expected level to be [%s], got [%s]", level, r.Level)
 					}
 					if r.NumAttrs() != 0 {
 						t.Errorf("Expected 0 attributes, got %d", r.NumAttrs())
@@ -72,8 +72,8 @@ func TestLogger_LevelExtensions(t *testing.T) {
 			handler: test.MockHandler{
 				HandleFunc: func(ctx context.Context, r slog.Record) error {
 					level := LevelInfo
-					if r.Level != level {
-						t.Errorf("Expected level to be [%s], got [%s]", getLevelString(level), r.Level)
+					if r.Level != slog.Level(level) {
+						t.Errorf("Expected level to be [%s], got [%s]", level, r.Level)
 					}
 					if r.NumAttrs() != 0 {
 						t.Errorf("Expected 0 attributes, got %d", r.NumAttrs())
@@ -105,8 +105,8 @@ func TestLogger_LevelExtensions(t *testing.T) {
 			handler: test.MockHandler{
 				HandleFunc: func(ctx context.Context, r slog.Record) error {
 					level := LevelWarn
-					if r.Level != level {
-						t.Errorf("Expected level to be [%s], got [%s]", getLevelString(level), r.Level)
+					if r.Level != slog.Level(level) {
+						t.Errorf("Expected level to be [%s], got [%s]", level, r.Level)
 					}
 					if r.NumAttrs() != 0 {
 						t.Errorf("Expected 0 attributes, got %d", r.NumAttrs())
@@ -138,8 +138,8 @@ func TestLogger_LevelExtensions(t *testing.T) {
 			handler: test.MockHandler{
 				HandleFunc: func(ctx context.Context, r slog.Record) error {
 					level := LevelError
-					if r.Level != level {
-						t.Errorf("Expected level to be [%s], got [%s]", getLevelString(level), r.Level)
+					if r.Level != slog.Level(level) {
+						t.Errorf("Expected level to be [%s], got [%s]", level, r.Level)
 					}
 					if r.NumAttrs() != 0 {
 						t.Errorf("Expected 0 attributes, got %d", r.NumAttrs())
@@ -337,8 +337,8 @@ func TestLogger_CustomLevels(t *testing.T) {
 
 func assertRecordLevel(t *testing.T, r *slog.Record, level Level, wantAttrs bool) error {
 	t.Helper()
-	if r.Level != level {
-		t.Errorf("Expected level to be [%s], got [%s]", getLevelString(level), r.Level)
+	if r.Level != slog.Level(level) {
+		t.Errorf("Expected level to be [%s], got [%s]", level, r.Level)
 	}
 	if !wantAttrs && r.NumAttrs() != 0 {
 		t.Errorf("Expected 0 attributes, got %d", r.NumAttrs())

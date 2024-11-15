@@ -89,8 +89,8 @@ func TestNewLogger(t *testing.T) {
 			}
 
 			if tt.levelEnv != "" {
-				want := getLevel(tt.levelEnv)
-				got := log.Enabled(context.Background(), slog.Level(want))
+				want := newLevel(tt.levelEnv)
+				got := log.Enabled(context.Background(), want)
 				if !got {
 					t.Errorf("Expected log level: %v", want)
 				}

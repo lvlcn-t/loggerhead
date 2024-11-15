@@ -10,8 +10,9 @@ import (
 
 // Logger is an alias for the [Provider] interface.
 // It is defined for backward compatibility with previous versions of the logger package.
-// FIXME: Will be removed with v0.4.0.
-type Logger = Provider
+//
+// Deprecated: Use [Provider] instead.
+type Logger = Provider // TODO: Remove in v0.4.0
 
 // Provider is the interface for the logger.
 // Its build on top of slog.Logger and extends it with additional logging methods.
@@ -19,6 +20,28 @@ type Provider = logger.Provider
 
 // Options is the optional configuration for the logger.
 type Options = logger.Options
+
+// Level is a custom type for log levels.
+type Level = logger.Level
+
+const (
+	// LevelTrace represents the TRACE log level.
+	LevelTrace = logger.LevelTrace
+	// LevelDebug represents the DEBUG log level.
+	LevelDebug = logger.LevelDebug
+	// LevelInfo represents the INFO log level.
+	LevelInfo = logger.LevelInfo
+	// LevelNotice represents the NOTICE log level.
+	LevelNotice = logger.LevelNotice
+	// LevelWarn represents the WARN log level.
+	LevelWarn = logger.LevelWarn
+	// LevelError represents the ERROR log level.
+	LevelError = logger.LevelError
+	// LevelPanic represents the PANIC log level.
+	LevelPanic = logger.LevelPanic
+	// LevelFatal represents the FATAL log level.
+	LevelFatal = logger.LevelFatal
+)
 
 // NewLogger creates a new Logger instance with optional configurations.
 // The logger can be customized by passing an Options struct which allows for

@@ -13,7 +13,7 @@ type Logger interface {
 	Success(msg string, args ...any)
 }
 
-const LevelSuccess = slog.Level(1)
+const LevelSuccess = logger.Level(1)
 
 type loggerExtension struct {
 	logger.Provider
@@ -46,7 +46,7 @@ func NewLogger() Logger {
 func replaceAttr(_ []string, a slog.Attr) slog.Attr {
 	if a.Key == slog.LevelKey {
 		l := a.Value.Any().(slog.Level)
-		if l == LevelSuccess {
+		if l == slog.Level(LevelSuccess) {
 			a.Value = slog.StringValue("SUCCESS")
 		}
 	}

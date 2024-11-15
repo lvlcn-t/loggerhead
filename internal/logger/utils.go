@@ -83,7 +83,7 @@ func Middleware(ctx context.Context) func(http.Handler) http.Handler {
 	}
 }
 
-// ToSlog returns the underlying slog.Logger.
+// ToSlog returns the underlying [slog.Logger].
 func (l *logger) ToSlog() *slog.Logger {
 	if l.Logger == nil {
 		return slog.New(newHandler())
@@ -92,7 +92,7 @@ func (l *logger) ToSlog() *slog.Logger {
 	return l.Logger
 }
 
-// FromSlog returns a new Logger instance based on the provided slog.Logger.
+// FromSlog returns a new Logger instance based on the provided [slog.Logger].
 func FromSlog(l *slog.Logger) Provider {
 	if l == nil {
 		return NewLogger()
@@ -123,7 +123,7 @@ func newBaseHandler(o Options) slog.Handler {
 	if strings.EqualFold(o.Format, "TEXT") {
 		log := clog.NewWithOptions(os.Stderr, clog.Options{
 			TimeFormat:      time.Kitchen,
-			Level:           clog.Level(getLevel(o.Level)),
+			Level:           clog.Level(newLevel(o.Level)),
 			ReportTimestamp: true,
 			ReportCaller:    true,
 		})
@@ -133,7 +133,7 @@ func newBaseHandler(o Options) slog.Handler {
 
 	return slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
 		AddSource:   true,
-		Level:       Level(getLevel(o.Level)),
+		Level:       slog.Level(newLevel(o.Level)),
 		ReplaceAttr: replaceAttr,
 	})
 }
@@ -142,11 +142,12 @@ func newBaseHandler(o Options) slog.Handler {
 func newCustomStyles() *clog.Styles {
 	styles := clog.DefaultStyles()
 
+	const maxWidth = 4
 	for level, color := range LevelColors {
 		styles.Levels[clog.Level(int(level))] = lipgloss.NewStyle().
-			SetString(getLevelString(level)).
+			SetString(level.String()).
 			Bold(true).
-			MaxWidth(4). //nolint:mnd // 4 is the max width for the level string
+			MaxWidth(maxWidth).
 			Foreground(lipgloss.Color(color))
 	}
 
@@ -156,8 +157,8 @@ func newCustomStyles() *clog.Styles {
 // replaceAttr is the replacement function for slog.HandlerOptions.
 func replaceAttr(_ []string, a slog.Attr) slog.Attr {
 	if a.Key == slog.LevelKey {
-		lev := a.Value.Any().(Level)
-		a.Value = slog.StringValue(getLevelString(lev))
+		lev := a.Value.Any().(slog.Level)
+		a.Value = slog.StringValue(lev.String())
 	}
 	return a
 }

@@ -5,18 +5,19 @@ import (
 	"strings"
 )
 
-// Level is the type of log levels.
-type Level = slog.Level
+// Level is a custom type for log levels.
+type Level slog.Level
 
+// Log levels.
 const (
-	LevelTrace  Level = slog.Level(-8)
-	LevelDebug  Level = slog.LevelDebug
-	LevelInfo   Level = slog.LevelInfo
-	LevelNotice Level = slog.Level(2)
-	LevelWarn   Level = slog.LevelWarn
-	LevelError  Level = slog.LevelError
-	LevelPanic  Level = slog.Level(12)
-	LevelFatal  Level = slog.Level(16)
+	LevelTrace  = Level(-8)
+	LevelDebug  = Level(slog.LevelDebug)
+	LevelInfo   = Level(slog.LevelInfo)
+	LevelNotice = Level(slog.Level(2))
+	LevelWarn   = Level(slog.LevelWarn)
+	LevelError  = Level(slog.LevelError)
+	LevelPanic  = Level(slog.Level(12))
+	LevelFatal  = Level(slog.Level(16))
 )
 
 // LevelNames is a map of log levels to their respective names.
@@ -43,30 +44,29 @@ var LevelColors = map[Level]string{
 	LevelFatal:  "160", // FATAL - Dark Red
 }
 
-// getLevel returns the integer value of the given level string.
-// If the level is not recognized, it returns LevelInfo.
-func getLevel(level string) int {
+// newLevel returns the log level based on the provided string.
+// Returns [LevelInfo] if the level is not recognized.
+func newLevel(level string) Level {
 	switch strings.ToUpper(level) {
 	case "TRACE":
-		return int(LevelTrace)
+		return LevelTrace
 	case "DEBUG":
-		return int(LevelDebug)
+		return LevelDebug
 	case "INFO":
-		return int(LevelInfo)
+		return LevelInfo
 	case "NOTICE":
-		return int(LevelNotice)
+		return LevelNotice
 	case "WARN", "WARNING":
-		return int(LevelWarn)
+		return LevelWarn
 	case "ERROR":
-		return int(LevelError)
+		return LevelError
 	default:
-		return int(LevelInfo)
+		return LevelInfo
 	}
 }
 
-// getLevelString returns the string value of the given level.
-func getLevelString(level Level) string {
-	if s, ok := LevelNames[level]; ok {
+func (l Level) String() string {
+	if s, ok := LevelNames[l]; ok {
 		return s
 	}
 	return "UNKNOWN"
