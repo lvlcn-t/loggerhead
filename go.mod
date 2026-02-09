@@ -7,7 +7,7 @@ toolchain go1.23.3
 require (
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/log v0.4.2
-	github.com/remychantenay/slog-otel v1.3.4
+	github.com/remychantenay/slog-otel v1.3.5
 )
 
 require (
