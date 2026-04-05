@@ -265,7 +265,7 @@ func TestMiddleware(t *testing.T) {
 				}
 			})
 
-			req := httptest.NewRequest("GET", "/", http.NoBody)
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", http.NoBody)
 			w := httptest.NewRecorder()
 
 			middleware(handler).ServeHTTP(w, req)
