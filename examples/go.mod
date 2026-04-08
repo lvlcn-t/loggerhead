@@ -9,7 +9,7 @@ require (
 	github.com/lvlcn-t/loggerhead v0.3.1
 	go.opentelemetry.io/otel v1.43.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.30.0
-	go.opentelemetry.io/otel/sdk v1.36.0
+	go.opentelemetry.io/otel/sdk v1.43.0
 )
 
 require (
