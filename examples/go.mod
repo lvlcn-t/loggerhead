@@ -8,7 +8,7 @@ require (
 	github.com/charmbracelet/log v1.0.0
 	github.com/lvlcn-t/loggerhead v0.3.1
 	go.opentelemetry.io/otel v1.43.0
-	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.30.0
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.43.0
 	go.opentelemetry.io/otel/sdk v1.43.0
 )
 
